@@ -1,4 +1,8 @@
-CC = PTCC
+CC ?= g++
+CFLAGS ?= -std=c++23 -O2
+
+.c.o:
+	$(CC) $(CFLAGS) -c $<
 LIBOBJ = checksum.o decl.o dir.o domach.o impl.o locksubs.o param.o path.o
 OBJ = $(LIBOBJ) cdaemon.o dkinstall.o mkspool.o udaemon.o
 LIB = lib.a -lnstring -lipc
@@ -23,16 +27,16 @@ shipall:
 	cd $(ASD); ship $(LIBPROGS) /usr/bin/ship /usr/bin/shipstat
 
 cdaemon:	lib.a cdaemon.o
-	$(CC) -o cdaemon cdaemon.o $(LIB)
+	$(CC) $(CFLAGS) -o cdaemon cdaemon.o $(LIB)
 
 dkinstall:	lib.a dkinstall.o
-	$(CC) -o dkinstall dkinstall.o $(LIB)
+	$(CC) $(CFLAGS) -o dkinstall dkinstall.o $(LIB)
 
 mkspool:	lib.a mkspool.o
-	$(CC) -o mkspool mkspool.o $(LIB)
+	$(CC) $(CFLAGS) -o mkspool mkspool.o $(LIB)
 
 udaemon:	lib.a udaemon.o
-	$(CC) -o udaemon udaemon.o $(LIB)
+	$(CC) $(CFLAGS) -o udaemon udaemon.o $(LIB)
 
 lib.a:	$(LIBOBJ)
 	rm -f lib.a
