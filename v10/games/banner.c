@@ -2,6 +2,15 @@
  * Tom Duff, U of Toronto 1976, BTL 1984
  */
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+static void getfont(const char *fname);
+static void scanchar(int c, int line);
+static int fontbit(int x, int y);
+static void err(const char *m);
+
 int blankcount;
 /*
  * Simulated <jerq.h>, <font.h>
@@ -21,15 +30,13 @@ struct fontchar{
 }info[257];
 int width;
 int *bits;
-getfont(fname)
-char *fname;
+static void getfont(const char *fname)
 {
-	register font, size, i, j, v;
-	char *malloc();
-	if((font=open(fname, 0))<0){
-		chdir("/usr/jerq/font");
-		if((font=open(fname,0))<0)
-			err("Font open error");
+        int font, size, i, j, v;
+        if((font=open(fname, 0))<0){
+                chdir("/usr/jerq/font");
+                if((font=open(fname,0))<0)
+                        err("Font open error");
 	}
 	read(font, &head, sizeof head);
 	head.n=((head.n&255)<<8)|((head.n>>8)&255);
@@ -55,11 +62,10 @@ char *fname;
 	}
 	close(font);
 }
-main(argc, argv)
-char *argv[];
+int main(int argc, char *argv[])
 {
-	register i;
-	register char *k;
+        int i;
+        char *k;
 	char buf[BUFSIZ];
 	--argc;
 	argv++;
@@ -84,13 +90,13 @@ char *argv[];
 	}
 	exit(0);
 }
-scanchar(c, line){
-	register char *bitp;
-	register i;
-	register x=info[c].x;
-	register dx=info[c+1].x-x;
-	register w=info[c].width;
-	register l=info[c].left;
+static void scanchar(int c, int line)
+{
+        int i;
+        int x=info[c].x;
+        int dx=info[c+1].x-x;
+        int w=info[c].width;
+        int l=info[c].left;
 	for(i=0;i!=w;i++){
 		if(i<l || dx+l<=i)
 			blankcount++;
@@ -105,10 +111,13 @@ scanchar(c, line){
 			blankcount++;
 	}
 }
-fontbit(x, y){
-	return(bits[y*width+x/32]&(1<<(31-(x&31))));
+static int fontbit(int x, int y)
+{
+        return bits[y*width + x/32] & (1 << (31 - (x & 31)));
 }
-err(m){
-	fprintf(stderr, "%s.\n", m);
-	exit(1);
+
+static void err(const char *m)
+{
+        fprintf(stderr, "%s.\n", m);
+        exit(1);
 }
