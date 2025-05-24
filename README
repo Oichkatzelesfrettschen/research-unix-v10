@@ -39,3 +39,18 @@ sellers.gz (the well-dressed one)
 	make as much sense in /usr.  Subdirectory man is Volume 1 of
 	the manual, with some additional tools used to produce the
 	printed version; subdirectory vol2 is Volume 2.
+
+Using the metrics script
+------------------------
+A helper script in tools/metrics.sh collects simple repository statistics.
+Run it from the repository root:
+
+    sh tools/metrics.sh
+
+If cloc or tokei are installed the script writes language_breakdown.csv and
+token_analysis.json with a breakdown of the source.
+
+Remember to run this script after every commit to keep metrics current.
+You can capture the output like so:
+
+    sh tools/metrics.sh > metrics_results.log
