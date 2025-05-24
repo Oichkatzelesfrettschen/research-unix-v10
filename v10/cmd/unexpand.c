@@ -1,3 +1,4 @@
+/* Modernization status: not yet refactored or rewritten for C++23 */
 static char *sccsid = "@(#)unexpand.c	4.1 (Berkeley) 10/1/80";
 /*
  * unexpand - put tabs into a file replacing blanks
