@@ -190,3 +190,18 @@ Continuous integration triggers the verification workflow by calling the
 See the "Booting in QEMU" section above (lines 70‑110) for the
 `lccmkall` cross‑compilation setup script and an example `qemu-system-vax`
 command line.
+
+Exokernel Build
+---------------
+Pass `-DEXO=1` to compile the microkernel services under `v10/sys/services`.
+Additional options control related components:
+
+* `-DBUILD_LIBPOSIX=1` – build `libposix.a` from `v10/sys/libposix`.
+* `-DLINK_SERVICES=1` – link the services library into the `unix` kernel.
+
+For example:
+
+```sh
+cmake -S . -B build -DEXO=1 -DBUILD_LIBPOSIX=1 -DLINK_SERVICES=1
+cmake --build build
+```
