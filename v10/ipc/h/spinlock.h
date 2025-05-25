@@ -3,48 +3,25 @@
 
 #include <stdint.h>
 
-#if defined(__x86_64__) || defined(__i386__)
-static inline unsigned spinlock_cache_line_size(void)
-{
-#if defined(__i386__)
-    unsigned int flags, tmp;
-
-    __asm__ volatile(
-        "pushfl\n\t"
-        "popl %0\n\t"
-        "movl %0,%1\n\t"
-        "xorl $0x200000,%0\n\t"
-        "pushl %0\n\t"
-        "popfl\n\t"
-        "pushfl\n\t"
-        "popl %0\n\t"
-        "xorl %1,%0"
-        : "=&r"(flags), "=&r"(tmp)
-        :
-        : "cc");
-
-    if (!(flags & 0x200000))
-        return 64;
-#endif
-
-    unsigned int eax, ebx, ecx, edx;
-    eax = 0x80000006;
-    __asm__ __volatile__("cpuid"
-                         : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
-                         : "a"(eax));
-    if (ecx & 0xFF)
-        return ecx & 0xFF;
-    return 64;
-}
+#if defined(__GCC_DESTRUCTIVE_SIZE)
+#define SPINLOCK_CACHE_LINE_SIZE __GCC_DESTRUCTIVE_SIZE
+#elif defined(__x86_64__) || defined(__i386__)
+#define SPINLOCK_CACHE_LINE_SIZE 64
+#elif defined(__aarch64__) || defined(__arm__)
+#define SPINLOCK_CACHE_LINE_SIZE 64
+#elif defined(__powerpc64__) || defined(__powerpc__)
+#define SPINLOCK_CACHE_LINE_SIZE 128
 #else
+#define SPINLOCK_CACHE_LINE_SIZE 64
+#endif
+
 static inline unsigned spinlock_cache_line_size(void)
 {
-    return 64;
+    return SPINLOCK_CACHE_LINE_SIZE;
 }
-#endif
 
 #ifndef CACHE_LINE_SIZE
-#define CACHE_LINE_SIZE 64
+#define CACHE_LINE_SIZE SPINLOCK_CACHE_LINE_SIZE
 #endif
 
 #ifdef USE_TICKET_LOCK
