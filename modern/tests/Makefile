@@ -1,4 +1,5 @@
-CC ?= cc
+CROSS_COMPILE ?=
+CC ?= $(CROSS_COMPILE)gcc
 CFLAGS = -pthread -I ../../v10/ipc/h -DSMP_ENABLED
 SPINLOCK_SRC = ../../v10/ipc/spinlock.c
 

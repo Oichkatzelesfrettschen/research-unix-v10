@@ -67,6 +67,19 @@ The script honors the CC environment variable, defaulting to `cc`.
 The command compiles a small C23 example under `modern/tests/` and
 checks that it runs correctly.
 
+Cross compiling
+---------------
+Before running `make` with a cross compiler, source the helper script
+and pass it your toolchain prefix:
+
+```sh
+. tools/cross-env.sh i386-linux-gnu-
+```
+
+Replace the argument with the desired target triple such as
+`vax-unknown-linux-gnu-`.  The script exports `CROSS_COMPILE`, `CC` and
+other variables used by the Makefiles.
+
 Booting in QEMU
 ---------------
 The repository contains source for the VAX version of Research UNIX.
