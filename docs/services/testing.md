@@ -1,4 +1,4 @@
-# Exokernel Testing
+# Modular Services Testing
 
 The prototype code under `modern/` includes a number of unit tests and
 integration checks.  The simplest way to build and run them is
