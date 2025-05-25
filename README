@@ -54,3 +54,12 @@ Remember to run this script after every commit to keep metrics current.
 You can capture the output like so:
 
     sh tools/metrics.sh > metrics_results.log
+
+Testing
+-------
+Run the C23 test suite with:
+
+    make test
+
+The command compiles a small C23 example under `modern/tests/` and
+checks that it runs correctly.
