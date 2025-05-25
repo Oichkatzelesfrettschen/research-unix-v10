@@ -138,11 +138,20 @@ Adjust the disk image path and other options to taste.  See the files in
 
 Building with make
 ------------------
-The repository provides a simple GNUmakefile. Invoke `make` at the root
-to compile the kernel and a subset of userland programs via the Plan 9
-`mk` scripts.
+The repository provides GNU Makefiles for the kernel and tests.  Invoke
+`make` at the repository root to compile the kernel and run the modern
+test suite.
 
-    make
+
+Cross‑compilation is supported by specifying an architecture and tool
+prefix.  For example, to build for aarch64 using a cross compiler
+installed as `aarch64-linux-gnu-gcc`:
+
+    make ARCH=aarch64 CROSS_COMPILE=aarch64-linux-gnu-
+
+The old Plan 9 `mk` scripts remain in the tree for historical reference
+but the GNU Makefiles are now the primary build method.
+
 
 Enable spinlock primitives and symmetric multiprocessing support with:
 
