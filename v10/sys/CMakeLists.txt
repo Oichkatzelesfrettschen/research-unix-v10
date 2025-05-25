@@ -14,7 +14,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 # Option controlling the SMP spinlock implementation
 option(SMP "Enable SMP support" OFF)
 if(SMP)
-    add_compile_definitions(SPINLOCK_TICKET)
+    add_compile_definitions(SPINLOCK_TICKET SMP_ENABLED)
 else()
     add_compile_definitions(SPINLOCK_UNIPROCESSOR)
 endif()

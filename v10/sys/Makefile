@@ -6,7 +6,7 @@ LDFLAGS ?=
 SMP ?= 0
 
 ifeq ($(SMP),1)
-SPINLOCK=-DSPINLOCK_TICKET
+SPINLOCK=-DSPINLOCK_TICKET -DSMP_ENABLED
 else
 SPINLOCK=-DSPINLOCK_UNIPROCESSOR
 endif
@@ -30,7 +30,7 @@ $(SUBDIRS):
 	$(MAKE) -C $@
 
 $(KERNEL): $(OBJ)
-$(CC) $(LDFLAGS) -nostdlib -o $@ $(OBJ)
+	$(CC) $(LDFLAGS) -nostdlib -o $@ $(OBJ)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
