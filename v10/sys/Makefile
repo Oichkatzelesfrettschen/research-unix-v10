@@ -1,6 +1,6 @@
 ARCH ?= $(shell uname -m)
 CROSS_COMPILE ?=
-CC ?= $(CROSS_COMPILE)gcc
+CC = $(CROSS_COMPILE)clang
 CFLAGS ?= -O
 LDFLAGS ?=
 SMP ?= 0

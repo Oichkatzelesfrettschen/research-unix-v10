@@ -1,5 +1,6 @@
 #ifndef __SYS_TYPES
 #define __SYS_TYPES
+#include <stdint.h>
 
 /*
  * Basic system types and related macros
@@ -29,10 +30,6 @@
 /* bytes to clicks */
 #define	btoc(x)	((((unsigned)(x)+511)>>9))
 
-typedef	unsigned char	u_char;
-typedef	unsigned short	u_short;
-typedef	unsigned int	u_int;
-typedef	unsigned long	u_long;
 
 typedef	long	daddr_t;
 typedef	char *	caddr_t;

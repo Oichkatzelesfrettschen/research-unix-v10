@@ -6,6 +6,7 @@
 /*
  * hardware parameters
  */
+#include <stdint.h>
 
 #define	NBBY		8		/* number of bits in a byte */
 #define	NBPW		sizeof(int)	/* number of bytes in an integer */
@@ -30,10 +31,6 @@
  * these should go away;
  * just say `unsigned'
  */
-typedef	unsigned char	u_char;
-typedef	unsigned short	u_short;
-typedef	unsigned int	u_int;
-typedef	unsigned long	u_long;
 
 typedef	long	daddr_t;	/* disk blocks */
 typedef	char *	caddr_t;
