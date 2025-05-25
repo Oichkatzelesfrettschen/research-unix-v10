@@ -70,7 +70,7 @@ struct	buf bswlist;		/* head of free swap header list */
 struct	buf *bclnlist;		/* head of cleaned page list */
 #ifdef SMP_ENABLED
 #include "../../ipc/h/spinlock.h"
-spinlock_t buf_lock = SPINLOCK_INITIALIZER;
+SPINLOCK_ALIGNED spinlock_t buf_lock = SPINLOCK_INITIALIZER;
 #endif
 
 struct	buf *alloc();

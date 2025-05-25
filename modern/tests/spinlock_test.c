@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "../../v10/ipc/h/spinlock.h"
 
-static spinlock_t lock = SPINLOCK_INITIALIZER;
+static SPINLOCK_ALIGNED spinlock_t lock = SPINLOCK_INITIALIZER;
 static int counter = 0;
 
 void *worker(void *arg)

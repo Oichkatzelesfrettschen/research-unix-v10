@@ -1,8 +1,10 @@
+#pragma once
 #ifndef SPINLOCK_H
 #define SPINLOCK_H
 
 #include <stdint.h>
 #include <stdatomic.h>
+#include <stdalign.h>
 
 #if defined(__GCC_DESTRUCTIVE_SIZE)
 #define SPINLOCK_CACHE_LINE_SIZE __GCC_DESTRUCTIVE_SIZE
@@ -25,16 +27,17 @@ static inline unsigned spinlock_cache_line_size(void)
 #define CACHE_LINE_SIZE SPINLOCK_CACHE_LINE_SIZE
 #endif
 
+#define SPINLOCK_ALIGNED alignas(CACHE_LINE_SIZE)
 #ifdef USE_TICKET_LOCK
 typedef struct {
     atomic_uint next;
     atomic_uint owner;
-} spinlock_t __attribute__((aligned(CACHE_LINE_SIZE)));
+} spinlock_t;
 #define SPINLOCK_INITIALIZER { ATOMIC_VAR_INIT(0), ATOMIC_VAR_INIT(0) }
 #else
 typedef struct {
     atomic_flag locked;
-} spinlock_t __attribute__((aligned(CACHE_LINE_SIZE)));
+} spinlock_t;
 #define SPINLOCK_INITIALIZER { ATOMIC_FLAG_INIT }
 #endif
 

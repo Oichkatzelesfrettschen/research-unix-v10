@@ -1,6 +1,6 @@
 #include "h/spinlock.h"
 
-spinlock_t ipc_lock = SPINLOCK_INITIALIZER;
+SPINLOCK_ALIGNED spinlock_t ipc_lock = SPINLOCK_INITIALIZER;
 
 #ifdef SMP_ENABLED
 #ifndef USE_TICKET_LOCK

@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include "../../v10/ipc/h/spinlock.h"
 
-static spinlock_t lock = SPINLOCK_INITIALIZER;
+static SPINLOCK_ALIGNED spinlock_t lock = SPINLOCK_INITIALIZER;
 static int order[2] = {-1, -1};
 static int index = 0;
 
