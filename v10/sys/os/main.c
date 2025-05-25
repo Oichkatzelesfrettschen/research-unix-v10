@@ -95,13 +95,17 @@ main()
 	 */
 	setupclock();
 
-	/*
-	 * make page-out daemon (process 2)
-	 * the daemon has ctopt(swbufcnt*CLSIZE*KLMAX) pages of page
-	 * table so that it can map dirty pages into
-	 * its address space during asychronous pushes.
-	 * this stuff should be shoved out to a vm init routine.
-	 */
+       /*
+        * Spawn the page-out daemon (PAGEPID) to
+        * push dirty pages to disk asynchronously.
+        */
+       /*
+        * make page-out daemon (process 2)
+        * the daemon has ctopt(swbufcnt*CLSIZE*KLMAX) pages of page
+        * table so that it can map dirty pages into
+        * its address space during asychronous pushes.
+        * this stuff should be shoved out to a vm init routine.
+        */
 
 	p->p_szpt = clrnd(ctopt(swbufcnt*CLSIZE*KLMAX + UPAGES));
 	if (newproc(&proc[PAGEPID], PAGEPID)) {
@@ -109,10 +113,11 @@ main()
 		proc[PAGEPID].p_dsize = u.u_dsize = swbufcnt*CLSIZE*KLMAX; 
 		pageout();
 	}
-	/*
-	 * make init process and
-	 * enter scheduling loop
-	 */
+       /*
+        * Fork process 1 (INITPID), copy out the
+        * initial user program and enter the
+        * scheduling loop.
+        */
 	p->p_szpt = CLSIZE;
 	if (newproc(&proc[INITPID], INITPID)) {
 		expand(clrnd((int)btoc(szicode)), P0BR);
