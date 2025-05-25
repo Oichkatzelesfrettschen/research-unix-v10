@@ -1,0 +1,3 @@
+# Ignore build artifacts from anim documentation
+
+docs/vol2/anim/*.o
