@@ -92,9 +92,11 @@ extern struct swapinfo swapinfo[];
 #define	notavail(bp) \
 { \
 	int s = spl6(); \
+        spin_lock(&buf_lock);
 	(bp)->av_back->av_forw = (bp)->av_forw; \
 	(bp)->av_forw->av_back = (bp)->av_back; \
 	(bp)->b_flags |= B_BUSY; \
+        spin_unlock(&buf_lock);
 	splx(s); \
 }
 #endif
@@ -284,6 +286,7 @@ register struct buf *bp;
 		else
 			bp->b_dev = NODEV;  		/* no assoc */
 	s = spl6();
+        spin_lock(&buf_lock);
 	if (bp->b_flags & (B_ERROR|B_INVAL)) {
 		/* block has no info ... put at front of most free list */
 		flist = &bfreelist[BQUEUES-1];
@@ -304,6 +307,7 @@ register struct buf *bp;
 		bp->av_forw = flist;
 	}
 	bp->b_flags &= ~(B_WANTED|B_BUSY|B_ASYNC|B_AGE);
+        spin_unlock(&buf_lock);
 	splx(s);
 }
 
@@ -387,6 +391,7 @@ daddr_t blkno;
 	if (major(dev) >= nblkdev)
 		panic("blkdev");
 	(void) spl6();
+        spin_lock(&buf_lock);
 	for (ep = &bfreelist[BQUEUES-1]; ep > bfreelist; ep--)
 		if (ep->av_forw != ep)
 			break;
@@ -395,6 +400,7 @@ daddr_t blkno;
 		sleep((caddr_t)ep, PRIBIO+1);
 		goto loop;
 	}
+        spin_unlock(&buf_lock);
 	(void) spl0();
 	bp = ep->av_forw;
 	notavail(bp);
@@ -427,6 +433,7 @@ geteblk()
 
 loop:
 	s = spl6();
+        spin_lock(&buf_lock);
 	for (dp = &bfreelist[BQUEUES-1]; dp > bfreelist; dp--)
 		if (dp->av_forw != dp)
 			break;
@@ -435,6 +442,7 @@ loop:
 		sleep((caddr_t)dp, PRIBIO+1);
 		goto loop;
 	}
+        spin_unlock(&buf_lock);
 	(void) splx(s);
 	bp = dp->av_forw;
 	notavail(bp);
@@ -481,9 +489,11 @@ register struct buf *bp;
 	register s;
 
 	s = spl6();
+        spin_lock(&buf_lock);
 	bp->av_back->av_forw = bp->av_forw;
 	bp->av_forw->av_back = bp->av_back;
 	bp->b_flags |= B_BUSY;
+        spin_unlock(&buf_lock);
 	splx(s);
 }
 #endif
@@ -508,6 +518,7 @@ register struct buf *bp;
 		if (bp->b_flags & B_ERROR)
 			panic("IO err in push");
 		s = spl6();
+        spin_lock(&buf_lock);
 		bp->av_forw = bclnlist;
 		bp->b_bcount = swapinfo[bp - swapbuf].swsize;
 		bp->b_pfcent = swapinfo[bp - swapbuf].swpf;
@@ -516,6 +527,7 @@ register struct buf *bp;
 		bclnlist = bp;
 		if (bswlist.b_flags & B_WANTED)
 			wakeup((caddr_t)&proc[PAGEPID]);
+        spin_unlock(&buf_lock);
 		splx(s);
 		return;
 	}
@@ -698,16 +710,19 @@ dev_t dev;
 
 loop:
 	s = spl6();
+        spin_lock(&buf_lock);
 	for (flist = bfreelist; flist < &bfreelist[BQUEUES]; flist++)
 	for (bp = flist->av_forw; bp != flist; bp = bp->av_forw) {
 		if (bp->b_flags&B_DELWRI && (dev == NODEV||dev==bp->b_dev)) {
 			bp->b_flags |= B_ASYNC;
 			notavail(bp);
+        spin_unlock(&buf_lock);
 			splx(s);
 			bwrite(bp);
 			goto loop;
 		}
 	}
+        spin_unlock(&buf_lock);
 	splx(s);
 }
 
@@ -740,6 +755,7 @@ unsigned (*mincnt)();
 		return;
 	}
 	s = spl6();
+        spin_lock(&buf_lock);
 	while (bp->b_flags&B_BUSY) {
 		bp->b_flags |= B_WANTED;
 		/*sleep((caddr_t)bp, PRIBIO+1);*/
@@ -750,10 +766,12 @@ unsigned (*mincnt)();
 			continue;
 		case TS_TIME:
 			u.u_error = EIO;
+        spin_unlock(&buf_lock);
 			(void) splx(s);
 			return;
 		}
 	}
+        spin_unlock(&buf_lock);
 	(void) splx(s);
 	bp->b_error = 0;
 	bp->b_proc = u.u_procp;
@@ -769,12 +787,14 @@ unsigned (*mincnt)();
 		vslock(a = bp->b_un.b_addr, c);
 		(*strat)(bp);
 		s = spl6();
+        spin_lock(&buf_lock);
 		while ((bp->b_flags&B_DONE) == 0)
 			sleep((caddr_t)bp, PRIBIO);
 		vsunlock(a, c, rw);
 		u.u_procp->p_flag &= ~SPHYSIO;
 		if (bp->b_flags&B_WANTED)
 			wakeup((caddr_t)bp);
+        spin_unlock(&buf_lock);
 		(void) splx(s);
 		bp->b_un.b_addr += c;
 		u.u_count -= c;

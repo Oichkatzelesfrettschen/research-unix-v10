@@ -17,6 +17,7 @@
 #include "sys/subaddr.h"
 #include "sys/diskio.h"
 #include "sys/file.h"
+#include "../../ipc/h/spinlock.h"
 
 #define	NOUPSEEK	1	/* because emulex doesn't do it right */
 
@@ -410,12 +411,14 @@ upstrategy(bp)
 	bp->b_cylin = (bp->b_blkno + up->blkoff[part])/st->nspc;
 	bp->b_ubm = (struct buf *)ubmbuf(up->ctl->ubno, bp, USLP);
 	s = spl6();
+        spin_lock(&buf_lock);
 	disksort(&up->actf, &up->actl, bp);
 	if ((up->flags & UACTIVE) == 0) {
 		upustart(up);
 		if (up->ctl->actf && (up->ctl->flags & CACTIVE) == 0)
 			upstart(up->ctl);
 	}
+        spin_unlock(&buf_lock);
 	splx(s);
 }
 
@@ -813,6 +816,7 @@ upwatch()
 	register int s;
 
 	s = spl6();
+        spin_lock(&buf_lock);
 	timeout(upwatch, (caddr_t)0, 15*HZ);
 	for (up = &updisk[upcnt-1]; up >= updisk; up--) {
 		if ((up->flags & UWOL) == 0)
@@ -851,5 +855,6 @@ upwatch()
 		if (sc->actf && (sc->flags & CACTIVE) == 0)
 			upstart(sc);
 	}
+        spin_unlock(&buf_lock);
 	splx(s);
 }
