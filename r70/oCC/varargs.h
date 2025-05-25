@@ -1,3 +1,4 @@
+#include <stdint.h>
 
 #ifndef va_start
 
@@ -24,7 +25,7 @@ typedef char *va_list;
 #define va_end(list)
 #ifdef u370
 #define va_arg(list, mode) ((mode *)(list = \
-	(char *) ((int)list + 2*sizeof(mode) - 1 & -sizeof(mode))))[-1]
+	(char *) (((uintptr_t)list) + 2*sizeof(mode) - 1 & -sizeof(mode))))[-1]
 #else
 #define va_arg(list, mode) ((mode *)(list += sizeof(mode)))[-1]
 #endif

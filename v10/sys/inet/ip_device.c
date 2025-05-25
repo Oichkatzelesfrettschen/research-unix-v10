@@ -4,6 +4,7 @@
  */
 
 #include "sys/param.h"
+#include <stdint.h>
 #include "sys/stream.h"
 #include "sys/conf.h"
 #include "sys/inet/in.h"
@@ -41,7 +42,7 @@ dev_t dev;
 ipdclose(q)
 register struct queue *q;
 {
-	ipdstate[(int)q->ptr] = 0;
+	ipdstate[(uintptr_t)q->ptr] = 0;
 }
 
 ipdput(q, bp)

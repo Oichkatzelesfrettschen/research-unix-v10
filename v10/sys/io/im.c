@@ -24,6 +24,7 @@ enum states {
 #include "sys/user.h"
 #include "sys/buf.h"
 #include "sys/ubaddr.h"
+#include <stdint.h>
 #include "sys/systm.h"
 
 #include "sys/im.h"
@@ -166,7 +167,7 @@ register struct buf *bp;
 	uaddr_t uaddr;
 	u_short csr;
 
-	if(bp->b_bcount<=0 || (bp->b_bcount&1) || ((int)bp->b_un.b_addr&1)){
+	if(bp->b_bcount<=0 || (bp->b_bcount&1) || (((uintptr_t)bp->b_un.b_addr)&1)){
 		bp->b_flags |= B_ERROR;
 		iodone(bp);
 		return;

@@ -1,8 +1,9 @@
+#include <stdint.h>
 
-#define	SALIGN(p)	(char *)(((int)p+1) & ~1)
-#define	LALIGN(p)	(char *)(((int)p+3) & ~3)
-#define	SNEXT(p)	(char *)((int)p + sizeof (short))
-#define	LNEXT(p)	(char *)((int)p + sizeof (long))
+#define SALIGN(p)       (char *)(((uintptr_t)(p)+1) & ~1)
+#define LALIGN(p)       (char *)(((uintptr_t)(p)+3) & ~3)
+#define SNEXT(p)        (char *)((uintptr_t)(p) + sizeof(short))
+#define LNEXT(p)        (char *)((uintptr_t)(p) + sizeof(long))
 
 
 /*

@@ -4,6 +4,7 @@
 
 #include "sys/param.h"
 #include "sys/ubaddr.h"
+#include <stdint.h>
 #include "sys/map.h"
 #include "sys/uba.h"
 #include "sys/buf.h"
@@ -138,8 +139,8 @@ int size;
 {
 	register int off;
 
-	off = (int)cp & PGOFSET;
-	return (ubmsetmap(u, &Sysmap[btop((int)cp & ~KSTART)],
+	off = ((uintptr_t)cp) & PGOFSET;
+	return (ubmsetmap(u, &Sysmap[btop(((uintptr_t)cp) & ~KSTART)],
 		btoc(size + off), um) + off);
 }
 
@@ -176,7 +177,7 @@ ubm_t um;
 {
 	register int off;
 
-	off = (int)bp->b_un.b_addr & PGOFSET;
+	off = ((uintptr_t)bp->b_un.b_addr) & PGOFSET;
 	return (ubmsetmap(u, btopte(bp), btoc(bp->b_bcount + off), um) + off);
 }
 

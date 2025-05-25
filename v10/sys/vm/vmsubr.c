@@ -1,6 +1,7 @@
 /*	vmsubr.c	4.6	81/05/28	*/
 
 #include "sys/param.h"
+#include <stdint.h>
 #include "sys/systm.h"
 #include "sys/user.h"
 #include "sys/vm.h"
@@ -103,7 +104,7 @@ register struct buf *bp;
 	else
 		rp = bp->b_proc;
 	if ((bp->b_flags & B_PHYS) == 0)
-		return(&Sysmap[btop(((int)bp->b_un.b_addr)&~KSTART)]);
+		return(&Sysmap[btop(((uintptr_t)bp->b_un.b_addr)&~KSTART)]);
 	else if (bp->b_flags & B_UAREA)
 		return(&rp->p_addr[btop(bp->b_un.b_addr)]);
 	else if (bp->b_flags & B_PAGET)

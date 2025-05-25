@@ -4,6 +4,7 @@
  *	(the latter not severe, as 256 channels are permitted)
  */
 #include "sys/param.h"
+#include <stdint.h>
 #include "sys/stream.h"
 #include "sys/dkio.h"
 #include "sys/ubaddr.h"
@@ -310,7 +311,7 @@ register struct kbkmc *kk;
 		return;
 	}
 	kk->ibuf = bp;
-	if ((int)bp->rptr & 01)
+	if ((uintptr_t)bp->rptr & 01)
 		bp->rptr++;
 	kk->iaddr = ua = ubadrptr(kk->ubno, bp, kk->imap);
 	reg->bc = bp->rptr - bp->lim;	/* sic - negative count */
