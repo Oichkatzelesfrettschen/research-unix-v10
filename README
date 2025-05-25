@@ -54,3 +54,5 @@ Remember to run this script after every commit to keep metrics current.
 You can capture the output like so:
 
     sh tools/metrics.sh > metrics_results.log
+
+The modern/ directory provides a small example program built with clang using the C23 standard. Run `make` there to build the `acd` executable.
