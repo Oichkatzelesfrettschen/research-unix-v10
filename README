@@ -77,6 +77,11 @@ should contain every dependency because network access is disabled
 after setup.  It also sets aggressive `CFLAGS` and `CXXFLAGS` enabling
 LTO and Polly optimizations via LLVM.
 
+Codex keeps `setup.sh` synced using the rules in `.codex/AGENTS.md`. A
+sample systemd unit is provided at `tools/codex-setup.service` that
+executes `codex -q -a full-auto "doctor setup.sh"` and then runs the
+script before networking becomes available.
+
 For background on the mailbox IPC primitives used in the tests, see
 [docs/IPC.md](docs/IPC.md).
 
