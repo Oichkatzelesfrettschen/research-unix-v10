@@ -3,7 +3,6 @@
 #define LOGIN		"/etc/login"
 
 /* byte transfer routines */
-extern char *memcpy();
-extern char *memset();
-#define bcopy(f,t,l) memcpy(t, f, l)
+#include <string.h>
+#define bcopy(f,t,l) memmove(t, f, l)
 #define bzero(t,l) memset(t, 0, l)

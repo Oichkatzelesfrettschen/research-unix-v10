@@ -61,7 +61,7 @@
  extern t_getc(Void);
 
 #ifdef KR_headers
- extern char *malloc(), *memset();
+ extern char *malloc();
 
 #ifdef ungetc
  static int

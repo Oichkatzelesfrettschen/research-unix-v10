@@ -21,11 +21,11 @@
 #include <ctype.h>
 #include <varargs.h>
 #include <values.h>
+#include <string.h>
 
 #define NCHARS	(1 << BITSPERBYTE)
 
 extern double atof();
-extern char *memset();
 extern int ungetc();
 
 int
