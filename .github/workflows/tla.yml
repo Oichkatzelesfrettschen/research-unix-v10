@@ -1,0 +1,22 @@
+name: TLA
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  model-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '11'
+      - name: Download TLA+ tools
+        run: |
+          curl -L -o tla2tools.jar https://github.com/tlaplus/tlaplus/releases/latest/download/tla2tools.jar
+      - name: Run TLC
+        run: |
+          java -cp tla2tools.jar tlc2.TLC -deadlock -cleanup verification/TicketLock.tla -config verification/TicketLock.cfg
