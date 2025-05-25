@@ -67,6 +67,9 @@ The script honors the CC environment variable, defaulting to `cc`.
 The command compiles a small C23 example under `modern/tests/` and
 checks that it runs correctly.
 
+For background on the mailbox IPC primitives used in the tests, see
+[docs/IPC.md](docs/IPC.md).
+
 Cross compiling
 ---------------
 
