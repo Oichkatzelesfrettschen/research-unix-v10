@@ -3,7 +3,7 @@
 ARCH ?= $(shell uname -m)
 CROSS_COMPILE ?=
 # Default to clang for building test utilities
-CC ?= clang
+CC = clang
 
 all: kernel test
 
@@ -12,12 +12,14 @@ kernel:
 
 test: check
 ifeq ($(CAPNP),1)
-       $(MAKE) -C modern/tests CC=$(CC) mailbox_timeout_test
-       $(MAKE) -C modern/memory_server CC=$(CC) all
-       ./modern/memory_server/memory_server & \
-       memsrv_pid=$$!; \
-       ./modern/tests/mailbox_timeout_test; \
-       kill $$memsrv_pid
+	$(MAKE) -C modern/libcapnp CC=$(CC) all
+	$(MAKE) -C modern/memory_server CC=$(CC) all
+	$(MAKE) -C modern/tests CC=$(CC) mailbox_timeout_test exo_ipc_status_test
+	./modern/memory_server/memory_server & \
+	memsrv_pid=$$!; \
+	./modern/tests/mailbox_timeout_test; \
+	./modern/tests/exo_ipc_status_test; \
+	kill $$memsrv_pid
 endif
 
 check:
@@ -26,3 +28,5 @@ check:
 clean:
 	$(MAKE) -C v10/sys clean
 	$(MAKE) -C modern/tests clean
+	$(MAKE) -C modern/memory_server clean
+	$(MAKE) -C modern/libcapnp clean

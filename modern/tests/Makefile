@@ -5,7 +5,8 @@ CFLAGS = -std=c23 -Wall -Wextra -Werror -pthread -I ../compat -I ../../v10/ipc/h
 SPINLOCK_SRC = ../../v10/ipc/spinlock.c
 
 TESTS = c23_hello spinlock_test thread_spinlock_stress \
-	process_spinlock_stress ptrace_concurrency_test spinlock_fairness
+        process_spinlock_stress ptrace_concurrency_test spinlock_fairness \
+        exo_ipc_status_test
 
 all: $(TESTS)
 
@@ -27,6 +28,9 @@ ptrace_concurrency_test: ptrace_concurrency_test.c
 spinlock_fairness: spinlock_fairness.c $(SPINLOCK_SRC)
 	$(CC) $(CFLAGS) -DUSE_TICKET_LOCK $< $(SPINLOCK_SRC) -o $@
 
+exo_ipc_status_test: exo_ipc_status_test.c $(SPINLOCK_SRC) ../../v10/ipc/libipc/mailbox.c
+	$(CC) $(CFLAGS) $< ../../v10/ipc/libipc/mailbox.c $(SPINLOCK_SRC) -o $@
+
 check: all
 	./c23_test.sh
 	./spinlock_test.sh
@@ -35,6 +39,7 @@ check: all
 	./ptrace_concurrency_test.sh
 	./spinlock_fairness
 	./mailbox_timeout_test.sh
+	./exo_ipc_status_test
 
 clean:
 	rm -f $(TESTS) *.txt

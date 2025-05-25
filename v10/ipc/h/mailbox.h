@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include "spinlock.h"
 #include "ipc.h"
+#include "exo_ipc.h"
 
 typedef struct message {
     struct message *next;
@@ -18,10 +19,10 @@ typedef struct mailbox {
 } mailbox_t;
 
 void mailbox_init(mailbox_t *mb);
-ipc_status mailbox_send(mailbox_t *mb, const void *buf, size_t len);
-ipc_status mailbox_recv(mailbox_t *mb, void *buf, size_t *len);
+exo_ipc_status mailbox_send(mailbox_t *mb, const void *buf, size_t len);
+exo_ipc_status mailbox_recv(mailbox_t *mb, void *buf, size_t *len);
 
-ipc_status exo_send(mailbox_t *target, const void *buf, size_t len);
-ipc_status exo_recv(mailbox_t *mb, void *buf, size_t *len);
+exo_ipc_status exo_send(mailbox_t *target, const void *buf, size_t len);
+exo_ipc_status exo_recv(mailbox_t *mb, void *buf, size_t *len);
 
 #endif /* MAILBOX_H */

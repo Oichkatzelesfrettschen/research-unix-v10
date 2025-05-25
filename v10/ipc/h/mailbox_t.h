@@ -3,9 +3,9 @@
 
 #include "mailbox.h"
 
-int mailbox_recv_t(mailbox_t *mb, void *buf, size_t *len, unsigned timeout);
+exo_ipc_status mailbox_recv_t(mailbox_t *mb, void *buf, size_t *len, unsigned timeout);
 
-static inline int Recv_T(mailbox_t *mb, void *buf, size_t *len, unsigned timeout)
+static inline exo_ipc_status Recv_T(mailbox_t *mb, void *buf, size_t *len, unsigned timeout)
 {
     return mailbox_recv_t(mb, buf, len, timeout);
 }
