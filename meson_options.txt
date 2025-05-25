@@ -1,0 +1,1 @@
+option('use_capnp', type: 'boolean', value: false, description: 'Enable Cap\'n Proto support')
