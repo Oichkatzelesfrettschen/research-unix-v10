@@ -84,25 +84,35 @@ Booting in QEMU
 ---------------
 The repository contains source for the VAX version of Research UNIX.
 The files under `v10/sys/` build the kernel while `v10/sys/boot`
-holds the boot blocks.  Building requires a VAX capable tool chain and
-the Plan 9 `mk` build system.
+holds the boot blocks.  Building requires a VAX capable tool chain.
 
 Prerequisites
 ~~~~~~~~~~~~~
 * `qemu-system-vax` from QEMU
 * a VAX cross C compiler (for example GCC or lcc)
-* the Plan&nbsp;9 `mk` command in your `PATH`
+* `make`
 
 Building the kernel and boot loader
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1. Run the helper script that invokes `mk` across the kernel tree:
+1. Build the kernel using the provided Makefile:
 
    ```sh
-   cd v10/sys
-   sh lccmkall
+   make -C v10/sys
    ```
 
-   This populates `v10/sys` with libraries and the `unix` kernel image.
+   To enable the ticket spinlock implementation run:
+
+   ```sh
+   make -C v10/sys SMP=1
+   ```
+
+   Cross compilation is possible by setting the compiler:
+
+   ```sh
+   make -C v10/sys CC=<cross-prefix>gcc
+   ```
+
+   This populates `v10/sys` with the `unix` kernel image.
 
 2. Build the MicroVAX boot blocks:
 
