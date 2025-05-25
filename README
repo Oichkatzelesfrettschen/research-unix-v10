@@ -4,6 +4,7 @@ Research Center at Bell Labs.  It is in no sense a formal distribution,
 and it is unlikely that it can be made into a working system without
 a fair amount of hand-waving, not to mention obsolete hardware; rather
 it is meant as a piece of the historic record.
+The repository is now undergoing digital necromancy and strives to boot in QEMU.
 
 It has been trimmed in several ways:
 - It was habit at the time to put a copy of all source code that seemed
