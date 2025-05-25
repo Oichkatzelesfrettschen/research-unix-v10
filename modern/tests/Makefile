@@ -1,3 +1,4 @@
+# Set CROSS_COMPILE using `source tools/cross-env.sh <arch>`
 CROSS_COMPILE ?=
 CC ?= $(CROSS_COMPILE)gcc
 CFLAGS = -pthread -I ../../v10/ipc/h -DSMP_ENABLED

@@ -1,3 +1,4 @@
+# Set CROSS_COMPILE using `source tools/cross-env.sh <arch>`
 CROSS_COMPILE ?=
 CC ?= $(CROSS_COMPILE)gcc
 AR ?= $(CROSS_COMPILE)ar

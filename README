@@ -70,15 +70,15 @@ checks that it runs correctly.
 Cross compiling
 ---------------
 Before running `make` with a cross compiler, source the helper script
-and pass it your toolchain prefix:
+and pass it the desired architecture:
 
 ```sh
-. tools/cross-env.sh i386-linux-gnu-
+. tools/cross-env.sh x86_64
 ```
 
-Replace the argument with the desired target triple such as
-`vax-unknown-linux-gnu-`.  The script exports `CROSS_COMPILE`, `CC` and
-other variables used by the Makefiles.
+The script chooses an appropriate prefix such as
+`x86_64-linux-gnu-` and exports `CROSS_COMPILE`, `CC` and other
+variables used by the Makefiles.
 
 Booting in QEMU
 ---------------
