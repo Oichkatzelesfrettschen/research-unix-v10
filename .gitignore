@@ -1,0 +1,14 @@
+# Build artifacts
+*.o
+*.a
+*.so
+
+# Executables in docs/vol2/anim/
+docs/vol2/anim/*
+!docs/vol2/anim/*.*
+
+# Metrics files
+metrics_results.log
+file_type_summary.txt
+language_breakdown.csv
+token_analysis.json
