@@ -64,3 +64,49 @@ Run the C23 test suite with:
 
 The command compiles a small C23 example under `modern/tests/` and
 checks that it runs correctly.
+
+Booting in QEMU
+---------------
+The repository contains source for the VAX version of Research UNIX.
+The files under `v10/sys/` build the kernel while `v10/sys/boot`
+holds the boot blocks.  Building requires a VAX capable tool chain and
+the Plan 9 `mk` build system.
+
+Prerequisites
+~~~~~~~~~~~~~
+* `qemu-system-vax` from QEMU
+* a VAX cross C compiler (for example GCC or lcc)
+* the Plan&nbsp;9 `mk` command in your `PATH`
+
+Building the kernel and boot loader
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Run the helper script that invokes `mk` across the kernel tree:
+
+   ```sh
+   cd v10/sys
+   sh lccmkall
+   ```
+
+   This populates `v10/sys` with libraries and the `unix` kernel image.
+
+2. Build the MicroVAX boot blocks:
+
+   ```sh
+   cd boot/uvax
+   mk 1kmscp
+   ```
+
+   The resulting `1kmscp` file can be used as the boot block.
+
+Launching QEMU
+~~~~~~~~~~~~~~
+With a disk image that contains the built kernel at the start of the
+filesystem, QEMU can load it using the boot block built above:
+
+```sh
+qemu-system-vax -M microvax2 -drive file=disk.img,if=none,id=hd0 \
+    -device vax-hd,drive=hd0 -boot d -kernel unix -bios 1kmscp
+```
+
+Adjust the disk image path and other options to taste.  See the files in
+`v10/sys/boot` for details on the boot code layout.
