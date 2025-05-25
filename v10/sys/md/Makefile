@@ -1,7 +1,7 @@
 CROSS_COMPILE ?=
 CC ?= $(CROSS_COMPILE)gcc
 CFLAGS ?= -O
-CFLAGS += -std=c23 -I ..
+CFLAGS += -std=c23 -I .. -Wall -Werror
 
 SRC_C := $(wildcard *.c)
 SRC_S := $(wildcard *.s)

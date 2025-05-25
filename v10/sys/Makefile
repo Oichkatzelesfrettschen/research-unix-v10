@@ -11,7 +11,7 @@ else
 SPINLOCK=-DSPINLOCK_UNIPROCESSOR
 endif
 
-CFLAGS += -std=c23 $(SPINLOCK) -I.
+CFLAGS += -std=c23 $(SPINLOCK) -I. -Wall -Werror
 
 export CROSS_COMPILE ARCH CC CFLAGS SMP
 
