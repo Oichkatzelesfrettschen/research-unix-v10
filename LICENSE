@@ -1,3 +1,5 @@
+/* Portions modified in 2024 under the MIT License. */
+
 This repository contains portions of the Research UNIX Version 10 source
 code and documentation originally developed at AT&T Bell Laboratories.
 
@@ -6,3 +8,5 @@ made available here for historical reference.  The original software was
 never formally released for general redistribution, and the current
 redistribution rights are unclear.  Permission from the original rights
 holders may be required for any use beyond personal study.
+
+New contributions to this repository are provided under the MIT License unless otherwise stated. See tools/mit-header.txt for the standard license header.
