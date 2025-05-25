@@ -2,6 +2,7 @@
 #define SPINLOCK_H
 
 #include <stdint.h>
+#include <stdatomic.h>
 
 #if defined(__GCC_DESTRUCTIVE_SIZE)
 #define SPINLOCK_CACHE_LINE_SIZE __GCC_DESTRUCTIVE_SIZE
@@ -26,16 +27,16 @@ static inline unsigned spinlock_cache_line_size(void)
 
 #ifdef USE_TICKET_LOCK
 typedef struct {
-    volatile unsigned next;
-    volatile unsigned owner;
+    atomic_uint next;
+    atomic_uint owner;
 } spinlock_t __attribute__((aligned(CACHE_LINE_SIZE)));
+#define SPINLOCK_INITIALIZER { ATOMIC_VAR_INIT(0), ATOMIC_VAR_INIT(0) }
 #else
 typedef struct {
-    volatile int locked;
+    atomic_flag locked;
 } spinlock_t __attribute__((aligned(CACHE_LINE_SIZE)));
+#define SPINLOCK_INITIALIZER { ATOMIC_FLAG_INIT }
 #endif
-
-#define SPINLOCK_INITIALIZER {0}
 
 #ifdef SMP_ENABLED
 void spin_lock(spinlock_t *lock);
