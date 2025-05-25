@@ -52,3 +52,18 @@ if (Recv_T(resp, &m, &len, 50) == EXO_IPC_STATUS_SUCCESS) {
     /* got a message within 50 ticks */
 }
 ```
+
+### Global mailbox queue
+
+The header `<mailbox_global.h>` exposes a fixed array of mailboxes
+named `ipcs`.  `MAILBOX_BUFSZ` specifies the number of entries.  A
+convenience routine `exo_ipc_queue_recv_timed()` waits for a message
+from one of these mailboxes with a timeout:
+
+```c
+size_t len = sizeof(buf);
+exo_ipc_status r = exo_ipc_queue_recv_timed(0, buf, &len, 10);
+```
+
+The array is initialised on first use and the function returns the same
+status codes as `mailbox_recv_t`.

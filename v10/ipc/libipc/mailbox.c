@@ -3,6 +3,22 @@
 #include <unistd.h>
 #include <time.h>
 #include "../h/mailbox.h"
+#include "../h/mailbox_global.h"
+
+/* Global mailbox array */
+struct mailbox ipcs[MAILBOX_BUFSZ];
+
+static int ipcs_initialized;
+
+static void
+mailbox_global_init(void)
+{
+    if (ipcs_initialized)
+        return;
+    for (int i = 0; i < MAILBOX_BUFSZ; i++)
+        mailbox_init(&ipcs[i]);
+    ipcs_initialized = 1;
+}
 
 void mailbox_init(mailbox_t *mb)
 {
@@ -88,5 +104,15 @@ exo_ipc_status mailbox_recv_t(mailbox_t *mb, void *buf, size_t *len, unsigned ti
         waited++;
     }
     return EXO_IPC_STATUS_TIMEOUT;
+}
+
+exo_ipc_status
+exo_ipc_queue_recv_timed(int index, void *buf, size_t *len, unsigned timeout)
+{
+    if (index < 0 || index >= MAILBOX_BUFSZ)
+        return EXO_IPC_STATUS_ERROR;
+
+    mailbox_global_init();
+    return mailbox_recv_t(&ipcs[index], buf, len, timeout);
 }
 
