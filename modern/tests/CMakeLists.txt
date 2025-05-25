@@ -36,6 +36,18 @@ add_executable(spinlock_fairness spinlock_fairness.c ${SPINLOCK_SRC})
 target_compile_definitions(spinlock_fairness PRIVATE SMP_ENABLED USE_TICKET_LOCK)
 target_link_libraries(spinlock_fairness PRIVATE Threads::Threads)
 
+add_executable(mqueue_ordering_test mqueue_ordering_test.c)
+target_link_libraries(mqueue_ordering_test PRIVATE Threads::Threads rt)
+
+add_executable(mqueue_blocking_test mqueue_blocking_test.c)
+target_link_libraries(mqueue_blocking_test PRIVATE Threads::Threads rt)
+
+add_executable(mqueue_overflow_test mqueue_overflow_test.c)
+target_link_libraries(mqueue_overflow_test PRIVATE rt)
+
+add_executable(mqueue_timeout_test mqueue_timeout_test.c)
+target_link_libraries(mqueue_timeout_test PRIVATE rt)
+
 enable_testing()
 add_test(NAME c23_test
     COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/c23_test.sh)
@@ -58,3 +70,8 @@ add_test(NAME ptrace_concurrency_test
 set_tests_properties(ptrace_concurrency_test PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_test(NAME spinlock_fairness COMMAND $<TARGET_FILE:spinlock_fairness>)
+
+add_test(NAME mqueue_ordering_test COMMAND $<TARGET_FILE:mqueue_ordering_test>)
+add_test(NAME mqueue_blocking_test COMMAND $<TARGET_FILE:mqueue_blocking_test>)
+add_test(NAME mqueue_overflow_test COMMAND $<TARGET_FILE:mqueue_overflow_test>)
+add_test(NAME mqueue_timeout_test COMMAND $<TARGET_FILE:mqueue_timeout_test>)
