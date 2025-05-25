@@ -7,6 +7,7 @@ static int counter = 0;
 
 void *worker(void *arg)
 {
+    (void)arg;
     for(int i=0; i<100000; i++) {
         spin_lock(&lock);
         counter++;

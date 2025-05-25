@@ -42,3 +42,13 @@ if (mbox_recv(resp, &m, 100) == IPC_STATUS_SUCCESS) {
     /* timeout or error */
 }
 ```
+
+User programs may include `<mailbox_t.h>` and call the `Recv_T` helper,
+which simply forwards to `mailbox_recv_t` with the given timeout:
+
+```c
+size_t len = sizeof(m);
+if (Recv_T(resp, &m, &len, 50) == 0) {
+    /* got a message within 50 ticks */
+}
+```

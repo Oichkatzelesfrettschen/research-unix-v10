@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <time.h>
 #include "../h/mailbox.h"
 
 void mailbox_init(mailbox_t *mb)
@@ -68,5 +70,23 @@ ipc_status exo_send(mailbox_t *target, const void *buf, size_t len)
 ipc_status exo_recv(mailbox_t *mb, void *buf, size_t *len)
 {
     return mailbox_recv(mb, buf, len);
+}
+
+#define TICK_USEC 10000
+
+int mailbox_recv_t(mailbox_t *mb, void *buf, size_t *len, unsigned timeout)
+{
+    unsigned waited = 0;
+    while (waited <= timeout) {
+        if (mailbox_recv(mb, buf, len) == 0)
+            return 0;
+        if (waited == timeout)
+            break;
+        struct timespec ts = {0};
+        ts.tv_nsec = TICK_USEC * 1000u;
+        nanosleep(&ts, NULL);
+        waited++;
+    }
+    return -1;
 }
 

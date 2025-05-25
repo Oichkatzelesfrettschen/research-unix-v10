@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
 #include "../compat/spinlock.h"
 
 static SPINLOCK_ALIGNED spinlock_t lock = SPINLOCK_INITIALIZER;
@@ -23,9 +24,11 @@ int main(void)
     /* Hold the lock so both threads queue up */
     spin_lock(&lock);
     pthread_create(&t1, NULL, worker, (void *)0);
-    usleep(10000); /* ensure thread 0 waits first */
+    struct timespec ts = {0};
+    ts.tv_nsec = 10000000;
+    nanosleep(&ts, NULL); /* ensure thread 0 waits first */
     pthread_create(&t2, NULL, worker, (void *)1);
-    usleep(10000);
+    nanosleep(&ts, NULL);
     spin_unlock(&lock);
 
     pthread_join(t1, NULL);
