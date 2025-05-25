@@ -92,14 +92,14 @@ ipclisten(fd)
 	 *  Get a unique stream to a caller, or reuse this one if none is passed.
 	 *  The reuse is typical of the arpa! gateway.
 	 */
-	if(_fd_read(fd, &pass) < 0) {
-		if(errno==EINTR)
-			return NULL;
-		info.uid = -1;
-		info.gid = -1;
-		info.rfd = dup(fd);
-		close(fd);
-	} else {
+        if(_fd_read(fd, &pass) != IPC_STATUS_SUCCESS) {
+                if(errno==EINTR)
+                        return NULL;
+                info.uid = -1;
+                info.gid = -1;
+                info.rfd = dup(fd);
+                close(fd);
+        } else {
 		info.uid = pass.uid;
 		info.gid = pass.gid;
 		info.rfd = pass.fd;
@@ -113,15 +113,15 @@ ipclisten(fd)
 	 *  Get possible passed fds.  Up to two can be passed, i.e.
 	 *  the fd to reply to and the one to use for communication.
 	 */
-	if (_fd_read(info.rfd, &pass)>=0) {
-		fd1 = pass.fd;
-		if (_fd_read(info.rfd, &pass)>=0) {
-			fd2 = pass.fd;
-		} else if(errno==EINTR){
-			close(info.rfd);
-			close(fd1);
-			return NULL;
-		}
+        if (_fd_read(info.rfd, &pass) == IPC_STATUS_SUCCESS) {
+                fd1 = pass.fd;
+                if (_fd_read(info.rfd, &pass) == IPC_STATUS_SUCCESS) {
+                        fd2 = pass.fd;
+                } else if(errno==EINTR){
+                        close(info.rfd);
+                        close(fd1);
+                        return NULL;
+                }
 	} else if(errno==EINTR){
 		close(info.rfd);
 		return NULL;
@@ -130,12 +130,12 @@ ipclisten(fd)
 	/*
 	 *  get the request
 	 */
-	if (_info_read(info.rfd, &info)<0) {
-		/* requestor gave up */
-		close(info.rfd);
-		if(fd1>=0)
-			close(fd1);
-		if(fd2>=0)
+        if (_info_read(info.rfd, &info) != IPC_STATUS_SUCCESS) {
+                /* requestor gave up */
+                close(info.rfd);
+                if(fd1>=0)
+                        close(fd1);
+                if(fd2>=0)
 			close(fd2);
 		return NULL;
 	}
@@ -186,10 +186,10 @@ ipcdaccept(ip, commfd, source)
 		/*
 		 *  supply our own channel for communications
 		 */
-		if (_fd_write(ip->rfd, commfd) < 0) {
-			close(commfd);
-			return ABORT(errno, "can't pass conection", ip);
-		}
+                if (_fd_write(ip->rfd, commfd) != IPC_STATUS_SUCCESS) {
+                        close(commfd);
+                        return ABORT(errno, "can't pass conection", ip);
+                }
 		_reply_write(ip->rfd, 0, source);
 		ABORT(0, "", ip);
 		ip->cfd = commfd;

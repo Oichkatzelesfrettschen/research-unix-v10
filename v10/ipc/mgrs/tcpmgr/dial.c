@@ -217,8 +217,8 @@ dialip(number, lport, fport, fields, n, ip, service)
 			 *  send the request
 			 */
 			ip->name = service;
-			if (_info_write(fd, ip)==0)
-				if (_reply_read(fd)==0 && errno==0) {
+                        if (_info_write(fd, ip) == IPC_STATUS_SUCCESS)
+                                if (_reply_read(fd)==IPC_STATUS_SUCCESS && errno==0) {
 					condition(fd, fields, n, ip->user);
 					filloutnames(&tu, ip, CALLOUT);
 					return fd;
@@ -513,11 +513,11 @@ net_listen(fd)
 			else
 				info.uid = info.gid = 0;
 			info.user = "_unknown_";
-			if (_info_read(fd, &info)<0) {
-				logevent("listen: info_read failed -- errno %d\n", errno);
-				close(fd);
-				return (ipcinfo *)NULL;
-			}
+                        if (_info_read(fd, &info) != IPC_STATUS_SUCCESS) {
+                                logevent("listen: info_read failed -- errno %d\n", errno);
+                                close(fd);
+                                return (ipcinfo *)NULL;
+                        }
 			info.flags |= IPC_HANDOFF;
 
 			/* break parameters */

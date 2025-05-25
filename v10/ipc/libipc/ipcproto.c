@@ -16,19 +16,39 @@ char *ipcname;
 /*
  *  Recieve an fd
  */
+ipc_status
 _fd_read(onfd, pp)
-	int onfd;
-	struct passfd *pp;
+        int onfd;
+        struct passfd *pp;
 {
-	return(ioctl(onfd, FIORCVFD, pp));
+        if (ioctl(onfd, FIORCVFD, pp) < 0) {
+                if(errno == ETIMEDOUT)
+                        return IPC_STATUS_TIMEOUT;
+                if(errno == EAGAIN || errno == EWOULDBLOCK)
+                        return IPC_STATUS_QUEUE_FULL;
+                if(errno == ENOENT || errno == EINVAL)
+                        return IPC_STATUS_INVALID_TARGET;
+                return IPC_STATUS_ERROR;
+        }
+        return IPC_STATUS_SUCCESS;
 }
 
 /*
  *  Send an fd
  */
+ipc_status
 _fd_write(onfd, tofd)
 {
-	return ioctl(onfd, FIOSNDFD, &tofd);
+        if (ioctl(onfd, FIOSNDFD, &tofd) < 0) {
+                if(errno == ETIMEDOUT)
+                        return IPC_STATUS_TIMEOUT;
+                if(errno == EAGAIN || errno == EWOULDBLOCK)
+                        return IPC_STATUS_QUEUE_FULL;
+                if(errno == ENOENT || errno == EINVAL)
+                        return IPC_STATUS_INVALID_TARGET;
+                return IPC_STATUS_ERROR;
+        }
+        return IPC_STATUS_SUCCESS;
 }
 
 /*
@@ -58,7 +78,7 @@ itoa(n)
 /*
  *  Send the connection info.
  */
-int
+ipc_status
 _info_write(fd, ip)
 	int fd;
 	ipcinfo *ip;
@@ -92,17 +112,25 @@ _info_write(fd, ip)
 	strcat(b, "\n");
 	strcat(b, itoa(ip->gid));
 	strcat(b, "\n");
-	n = strlen(b);
-	if (write(fd, b, n)!=n)
-		return ABORT(errno, "can't send request", NULLINFO);
-	return 0;
+        n = strlen(b);
+        if (write(fd, b, n)!=n) {
+                ABORT(errno, "can't send request", NULLINFO);
+                if(errno == ETIMEDOUT)
+                        return IPC_STATUS_TIMEOUT;
+                if(errno == EAGAIN || errno == EWOULDBLOCK)
+                        return IPC_STATUS_QUEUE_FULL;
+                if(errno == ENOENT || errno == EINVAL)
+                        return IPC_STATUS_INVALID_TARGET;
+                return IPC_STATUS_ERROR;
+        }
+        return IPC_STATUS_SUCCESS;
 }
 
 /*
  *  Read the connection info.  If an error occurs, ip->reply and ip->conn are
  *  closed.
  */
-int
+ipc_status
 _info_read(fd, ip)
 	int fd;
 	ipcinfo *ip;
@@ -112,15 +140,24 @@ _info_read(fd, ip)
 	int n;
 	char *oldfields;
 
-	n=read(fd, b, sizeof(b));
-	if (n <= 0) 
-		return ABORT(errno, "error reading request", ip);
+        n=read(fd, b, sizeof(b));
+        if (n <= 0) {
+                ABORT(errno, "error reading request", ip);
+                if(errno == ETIMEDOUT)
+                        return IPC_STATUS_TIMEOUT;
+                if(errno == EAGAIN || errno == EWOULDBLOCK)
+                        return IPC_STATUS_QUEUE_FULL;
+                if(errno == ENOENT || errno == EINVAL)
+                        return IPC_STATUS_INVALID_TARGET;
+                return IPC_STATUS_ERROR;
+        }
 	b[n] = '\0';
 	oldfields = setfields("\n");
 	if (getfields(b, f, 8)!=8){
-		setfields(oldfields);
-		return ABORT(EINVAL, "protocol botch", ip);
-	}
+                setfields(oldfields);
+                ABORT(EINVAL, "protocol botch", ip);
+                return IPC_STATUS_INVALID_TARGET;
+        }
 	ip->myname = f[0];
 	ip->name = f[1];
 	ip->param = f[2];
@@ -140,13 +177,14 @@ _info_read(fd, ip)
 		ip->uid = atoi(f[6]);
 		ip->gid = atoi(f[7]);
 	}
-	setfields(oldfields);
-	return 0;
+        setfields(oldfields);
+        return IPC_STATUS_SUCCESS;
 }
 
 /*
  *  Send a reply to a connection request
  */
+ipc_status
 _reply_write(fd, no, str)
 	int fd;
 	int no;
@@ -161,16 +199,23 @@ _reply_write(fd, no, str)
 	strcat(b, "\n");
 	strcat(b, str);
 	strcat(b, "\n");
-	n = strlen(b);
-	if (write(fd, b, n)!=n)
-		return -1;
-	return 0;
+        n = strlen(b);
+        if (write(fd, b, n)!=n) {
+                if(errno == ETIMEDOUT)
+                        return IPC_STATUS_TIMEOUT;
+                if(errno == EAGAIN || errno == EWOULDBLOCK)
+                        return IPC_STATUS_QUEUE_FULL;
+                if(errno == ENOENT || errno == EINVAL)
+                        return IPC_STATUS_INVALID_TARGET;
+                return IPC_STATUS_ERROR;
+        }
+        return IPC_STATUS_SUCCESS;
 }
 
 /*
  *  Get a reply to a connection request.
  */
-int
+ipc_status
 _reply_read(fd)
 	int fd;
 {
@@ -179,10 +224,18 @@ _reply_read(fd)
 	char *ptr;
 	int n;
 
-	while((n=read(fd, b, sizeof(b)))<0 && errno==EINTR)
-		;
-	if (n <= 0) 
-		return ABORT(errno, "error reading request", NULLINFO);
+        while((n=read(fd, b, sizeof(b)))<0 && errno==EINTR)
+                ;
+        if (n <= 0) {
+                ABORT(errno, "error reading request", NULLINFO);
+                if(errno == ETIMEDOUT)
+                        return IPC_STATUS_TIMEOUT;
+                if(errno == EAGAIN || errno == EWOULDBLOCK)
+                        return IPC_STATUS_QUEUE_FULL;
+                if(errno == ENOENT || errno == EINVAL)
+                        return IPC_STATUS_INVALID_TARGET;
+                return IPC_STATUS_ERROR;
+        }
 	b[n] = '\0';
 	setfields("\n");
 	getfields(b, f, 2);
@@ -198,6 +251,6 @@ _reply_read(fd)
                ipcname = f[1];
                spin_unlock(&ipc_lock);
        }
-       return 0;
+       return IPC_STATUS_SUCCESS;
 }
 

@@ -4,7 +4,7 @@
  *  Read the connection info.  If an error occurs, ip->reply and ip->conn are
  *  closed.
  */
-int
+ipc_status
 _info_read(fd, ip)
 	int fd;
 	ipcinfo *ip;
@@ -13,13 +13,23 @@ _info_read(fd, ip)
 	char *f[8];
 	int n;
 
-	n=read(fd, b, sizeof(b));
-	if (n <= 0) 
-		return _ipcabort(errno, "error reading request", ip);
+        n=read(fd, b, sizeof(b));
+        if (n <= 0) {
+                _ipcabort(errno, "error reading request", ip);
+                if(errno == ETIMEDOUT)
+                        return IPC_STATUS_TIMEOUT;
+                if(errno == EAGAIN || errno == EWOULDBLOCK)
+                        return IPC_STATUS_QUEUE_FULL;
+                if(errno == ENOENT || errno == EINVAL)
+                        return IPC_STATUS_INVALID_TARGET;
+                return IPC_STATUS_ERROR;
+        }
 	b[n] = '\0';
 	setfields("\n");
-	if (getfields(b, f, 8)!=8)
-		return _ipcabort(EINVAL, "protocol botch", ip);
+        if (getfields(b, f, 8)!=8) {
+                _ipcabort(EINVAL, "protocol botch", ip);
+                return IPC_STATUS_INVALID_TARGET;
+        }
 	ip->myname = f[0];
 	ip->name = f[1];
 	ip->param = f[2];
@@ -39,12 +49,13 @@ _info_read(fd, ip)
 		ip->uid = atoi(f[6]);
 		ip->gid = atoi(f[7]);
 	}
-	return 0;
+        return IPC_STATUS_SUCCESS;
 }
 
 /*
  *  Send a reply to a connection request
  */
+ipc_status
 _reply_write(fd, no, str)
 	int fd;
 	int no;
@@ -57,15 +68,22 @@ _reply_write(fd, no, str)
 		str = "";
 	sprintf(b, "%d\n%s\n", no, str);
 	n = strlen(b);
-	if (write(fd, b, n)!=n)
-		return -1;
-	return 0;
+        if (write(fd, b, n)!=n) {
+                if(errno == ETIMEDOUT)
+                        return IPC_STATUS_TIMEOUT;
+                if(errno == EAGAIN || errno == EWOULDBLOCK)
+                        return IPC_STATUS_QUEUE_FULL;
+                if(errno == ENOENT || errno == EINVAL)
+                        return IPC_STATUS_INVALID_TARGET;
+                return IPC_STATUS_ERROR;
+        }
+        return IPC_STATUS_SUCCESS;
 }
 
 /*
  *  Get a reply to a connection request.
  */
-int
+ipc_status
 _reply_read(fd)
 	int fd;
 {
@@ -74,10 +92,18 @@ _reply_read(fd)
 	char *ptr;
 	int n;
 
-	while((n=read(fd, b, sizeof(b)))<0 && errno==EINTR)
-		;
-	if (n <= 0) 
-		return _ipcabort(errno, "error reading request", NULLINFO);
+        while((n=read(fd, b, sizeof(b)))<0 && errno==EINTR)
+                ;
+        if (n <= 0) {
+                _ipcabort(errno, "error reading request", NULLINFO);
+                if(errno == ETIMEDOUT)
+                        return IPC_STATUS_TIMEOUT;
+                if(errno == EAGAIN || errno == EWOULDBLOCK)
+                        return IPC_STATUS_QUEUE_FULL;
+                if(errno == ENOENT || errno == EINVAL)
+                        return IPC_STATUS_INVALID_TARGET;
+                return IPC_STATUS_ERROR;
+        }
 	b[n] = '\0';
 	parselines(b, f, 2);
 	errno = atoi(f[0]);
@@ -87,5 +113,5 @@ _reply_read(fd)
 		errstr = f[1];
 	else
 		ipcname = f[1];
-	return 0;
+        return IPC_STATUS_SUCCESS;
 }

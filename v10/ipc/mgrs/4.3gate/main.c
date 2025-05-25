@@ -36,8 +36,8 @@ main()
 	 */
 	info.uid = info.gid = 0;
 	info.user="root";
-	if (_info_read(caller, &info)<0)
-		return -1;
+        if (_info_read(caller, &info) != IPC_STATUS_SUCCESS)
+                return -1;
 
 	/*
 	 *  dial the number
@@ -59,11 +59,11 @@ main()
 		close(caller);
 		return -1;
 	}
-	if (_reply_write(caller, 0, ipcname)<0) {
-		close(caller);
-		close(callee);
-		return -1;
-	}
+        if (_reply_write(caller, 0, ipcname) != IPC_STATUS_SUCCESS) {
+                close(caller);
+                close(callee);
+                return -1;
+        }
 
 	/*
 	 *  For creat's, we accept only one call per creat.  This
@@ -74,10 +74,10 @@ main()
 
 		if((ip = ipclisten(callee)) == NULL)
 			exit(0);
-		if(_info_write(caller, ip) < 0)
-			exit(0);
-		if(_reply_read(caller) < 0)
-			exit(0);
+        if(_info_write(caller, ip) != IPC_STATUS_SUCCESS)
+                exit(0);
+        if(_reply_read(caller) != IPC_STATUS_SUCCESS)
+                exit(0);
 		if(errno) {
 			ipcreject(ip, errno, errstr);
 			exit(0);
@@ -126,7 +126,7 @@ pass(from, to)
 /*
  *  Send the connection info.
  */
-int
+ipc_status
 _info_write(fd, ip)
 	int fd;
 	ipcinfo *ip;
@@ -147,9 +147,17 @@ _info_write(fd, ip)
 	sprintf(b, "%s\n%s\n%s\n%s\n%s\n%d\n%d\n%d\n", ip->myname, ip->name,
 		ip->param, ip->machine, ip->user, ip->flags, ip->uid, ip->gid);
 	n = strlen(b);
-	if (write(fd, b, n)!=n)
-		return ABORT(errno, "can't send request", NULLINFO);
-	return 0;
+        if (write(fd, b, n)!=n) {
+                ABORT(errno, "can't send request", NULLINFO);
+                if(errno == ETIMEDOUT)
+                        return IPC_STATUS_TIMEOUT;
+                if(errno == EAGAIN || errno == EWOULDBLOCK)
+                        return IPC_STATUS_QUEUE_FULL;
+                if(errno == ENOENT || errno == EINVAL)
+                        return IPC_STATUS_INVALID_TARGET;
+                return IPC_STATUS_ERROR;
+        }
+        return IPC_STATUS_SUCCESS;
 }
 
 
@@ -181,11 +189,11 @@ ipclisten(fd)
 	close(fd);
 
 	/* get the request */
-	if (_info_read(info.rfd, &info)<0) {
-		/* requestor gave up */
-		close(info.rfd);
-		return NULL;
-	}
+        if (_info_read(info.rfd, &info) != IPC_STATUS_SUCCESS) {
+                /* requestor gave up */
+                close(info.rfd);
+                return NULL;
+        }
 
 	return &info;
 }
@@ -212,10 +220,10 @@ ipcdaccept(ip, commfd, source)
 	if (commfd >= 0) {
 
 		/* supply our own channel for communications */
-		if (_fd_write(ip->rfd, commfd) < 0) {
-			close(commfd);
-			return ABORT(errno, "can't pass conection", ip);
-		}
+                if (_fd_write(ip->rfd, commfd) != IPC_STATUS_SUCCESS) {
+                        close(commfd);
+                        return ABORT(errno, "can't pass conection", ip);
+                }
 		_reply_write(ip->rfd, 0, source);
 		ABORT(0, "", ip);
 		ip->cfd = commfd;

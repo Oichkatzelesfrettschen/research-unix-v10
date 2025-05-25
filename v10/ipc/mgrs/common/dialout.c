@@ -296,20 +296,20 @@ docreat(ip, mtpt)
 		netip->rfd = -1;
 		_strcat(&myname, mtpt, "!", ip->myname);
 		ip->myname = myname.ptr;
-		if (_info_write(pfd[1], netip) < 0) {
-			net_reject(netip, errno, "protocol botch");
-			close(pfd[1]);
-			logstatus("in", netip);
-			continue;
-		}
+                if (_info_write(pfd[1], netip) != IPC_STATUS_SUCCESS) {
+                        net_reject(netip, errno, "protocol botch");
+                        close(pfd[1]);
+                        logstatus("in", netip);
+                        continue;
+                }
 
 		/*
 		 *  get the client's reply and pass it on to the net
 		 */
-		if (_reply_read(pfd[1]) < 0) {
-			/*  didn't work, drop call */
-			net_reject(netip, errno, "protocol botch");
-		} else if(errno<0) {
+                if (_reply_read(pfd[1]) != IPC_STATUS_SUCCESS) {
+                        /*  didn't work, drop call */
+                        net_reject(netip, errno, "protocol botch");
+                } else if(errno<0) {
 			/*  client will handle the accept/reject */
 			close(netip->cfd);
 		} else if (errno) {

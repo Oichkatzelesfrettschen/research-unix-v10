@@ -38,6 +38,15 @@ extern int errno;
 extern char *errstr;
 extern char *ipcname;
 
+/* status codes for ipc operations */
+typedef enum {
+    IPC_STATUS_SUCCESS = 0,
+    IPC_STATUS_TIMEOUT,
+    IPC_STATUS_QUEUE_FULL,
+    IPC_STATUS_INVALID_TARGET,
+    IPC_STATUS_ERROR
+} ipc_status;
+
 /* qnet stuff */
 typedef struct qtuple{
 	struct qtuple *next;

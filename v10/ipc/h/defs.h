@@ -11,10 +11,10 @@
 
 /* routines used by the conenction service */
 extern int ipcdial();
-extern int _info_read();
-extern int _info_write();
-extern int _reply_read();
-extern int _reply_write();
+extern ipc_status _info_read();
+extern ipc_status _info_write();
+extern ipc_status _reply_read();
+extern ipc_status _reply_write();
 extern int _ipcabort();
 
 /* string routines */

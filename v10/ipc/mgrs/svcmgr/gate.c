@@ -33,7 +33,7 @@ gateout(rp, ap)
 	fd = ipcopen(ap->arg, rp->i->param);
 
 	/* send original request */
- 	if (fd<0 || _info_write(fd, rp->i)<0) {
+        if (fd<0 || _info_write(fd, rp->i) != IPC_STATUS_SUCCESS) {
 		/* if there are any more gateout's, keep trying */
 		if (ap->next==NULL)
 			ipcreject(rp->i, errno, errstr);
@@ -42,7 +42,7 @@ gateout(rp, ap)
 	}
 
 	/* see if the gateway could place the call */
-	if (_reply_read(fd)<0 || errno!=0) {
+        if (_reply_read(fd) != IPC_STATUS_SUCCESS || errno!=0) {
 		/* call was rejected, don't try any more gateouts */
 		ipcreject(rp->i, errno, errstr);
 		close(fd);
@@ -96,8 +96,8 @@ gateway(rp, ap)
 	/* get the original request */
 	info.uid = info.gid = 0;
 	info.user="";
-	if (_info_read(caller, &info)<0)
-		return -1;
+        if (_info_read(caller, &info) != IPC_STATUS_SUCCESS)
+                return -1;
 
 	/* dial the number */
 	sprintf(newname, "%s!%s", ap->arg, info.name);
@@ -162,10 +162,10 @@ gateway(rp, ap)
 			exit(0);
 
 		/* pass it creator */
-		if(_info_write(caller, ip) < 0)
-			exit(0);
-		if(_reply_read(caller) < 0)
-			exit(0);
+                if(_info_write(caller, ip) != IPC_STATUS_SUCCESS)
+                        exit(0);
+                if(_reply_read(caller) != IPC_STATUS_SUCCESS)
+                        exit(0);
 		if(errno) {
 			ipcreject(ip, errno, errstr);
 			exit(0);

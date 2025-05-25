@@ -125,11 +125,11 @@ ipcdial(ip)
 	/*
 	 * pass reply channel
 	 */
-	if (ip->rfd >= 0) {
-		if (_fd_write(fd, ip->rfd)<0) {
-			close(fd);
-			return ABORT(EIO, "protocol botch", ip);
-		}
+        if (ip->rfd >= 0) {
+                if (_fd_write(fd, ip->rfd) != IPC_STATUS_SUCCESS) {
+                        close(fd);
+                        return ABORT(EIO, "protocol botch", ip);
+                }
 		close(ip->rfd);
 		ip->rfd = -1;
 	}
@@ -137,11 +137,11 @@ ipcdial(ip)
 	/*
 	 * pass communications channel (if not same as reply channel)
 	 */
-	if (ip->cfd >= 0) {
-		if (_fd_write(fd, ip->cfd)<0) {
-			close(fd);
-			return ABORT(EIO, "protocol botch", ip);
-		}
+        if (ip->cfd >= 0) {
+                if (_fd_write(fd, ip->cfd) != IPC_STATUS_SUCCESS) {
+                        close(fd);
+                        return ABORT(EIO, "protocol botch", ip);
+                }
 		close(ip->cfd);
 		ip->cfd = -1;
 	}
@@ -149,10 +149,10 @@ ipcdial(ip)
 	/*
 	 *  pass the request
 	 */
-	if (_info_write(fd, ip) < 0) {
-		close(fd);
-		return ABORT(errno, errstr, ip);
-	}
+        if (_info_write(fd, ip) != IPC_STATUS_SUCCESS) {
+                close(fd);
+                return ABORT(errno, errstr, ip);
+        }
 	if (ip->flags&IPC_HANDOFF)
 		return fd;
 
@@ -161,17 +161,17 @@ ipcdial(ip)
 	 *  file descriptor to use as the communications 
 	 *  channel.
 	 */
-	if (_fd_read(fd, &pass)>=0) {
-		_reply_read(fd);
-		if (errno != 0) {
-			close(fd);
-			close(pass.fd);
-			return ABORT(errno, errstr, NULLINFO);
-		}
-		close(fd);
-		return pass.fd;
-	} else {
-		_reply_read(fd);
+        if (_fd_read(fd, &pass) == IPC_STATUS_SUCCESS) {
+                _reply_read(fd);
+                if (errno != 0) {
+                        close(fd);
+                        close(pass.fd);
+                        return ABORT(errno, errstr, NULLINFO);
+                }
+                close(fd);
+                return pass.fd;
+        } else {
+                _reply_read(fd);
 		if (errno != 0) {
 			close(fd);
 			return ABORT(errno, errstr, NULLINFO);
