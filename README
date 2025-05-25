@@ -67,6 +67,12 @@ The script honors the CC environment variable, defaulting to `cc`.
 The command compiles a small C23 example under `modern/tests/` and
 checks that it runs correctly.
 
+Toolchain setup relies on `clang` and `ccache`.  The helper script
+`.codex/setup.sh` installs the necessary Ubuntu packages including
+`clang-tidy`, `llvm-bolt`, and `capnproto-dev`.  It exports `CC` and
+`CXX` as `ccache clang` so the test builds benefit from compiler
+caching and linting through `clang-tidy`.
+
 For background on the mailbox IPC primitives used in the tests, see
 [docs/IPC.md](docs/IPC.md).
 

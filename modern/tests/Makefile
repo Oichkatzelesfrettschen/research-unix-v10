@@ -31,13 +31,13 @@ spinlock_fairness: spinlock_fairness.c $(SPINLOCK_SRC)
 exo_ipc_status_test: exo_ipc_status_test.c $(SPINLOCK_SRC) ../../v10/ipc/libipc/mailbox.c
 	$(CC) $(CFLAGS) $< ../../v10/ipc/libipc/mailbox.c $(SPINLOCK_SRC) -o $@
 
-	posix_wrappers_test: posix_wrappers_test.c
+posix_wrappers_test: posix_wrappers_test.c
 	$(CC) $(CFLAGS) $< -o $@
 
-	capability_client: capability_client.c ../libcapnp/libcapnp.a
-		$(CC) $(CFLAGS) $< ../libcapnp/libcapnp.a -o $@
-	
-	../libcapnp/libcapnp.a:
+capability_client: capability_client.c ../libcapnp/libcapnp.a
+	$(CC) $(CFLAGS) $< ../libcapnp/libcapnp.a -o $@
+
+../libcapnp/libcapnp.a:
 	$(MAKE) -C ../libcapnp CC=$(CC) all
 
 check: all
