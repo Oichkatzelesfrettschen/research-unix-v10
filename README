@@ -62,6 +62,8 @@ Run the C23 test suite with:
 
     make test
 
+The script honors the CC environment variable, defaulting to `cc`.
+
 The command compiles a small C23 example under `modern/tests/` and
 checks that it runs correctly.
 
