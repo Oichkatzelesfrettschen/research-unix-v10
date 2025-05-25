@@ -43,7 +43,10 @@ typedef struct {
 #define SPINLOCK_INITIALIZER { ATOMIC_FLAG_INIT }
 #endif
 
-#ifdef SMP_ENABLED
+#ifdef SPINLOCK_UNIPROCESSOR
+#define spin_lock(l) ((void)0)
+#define spin_unlock(l) ((void)0)
+#elif defined(SMP_ENABLED)
 void spin_lock(spinlock_t *lock);
 void spin_unlock(spinlock_t *lock);
 #else
