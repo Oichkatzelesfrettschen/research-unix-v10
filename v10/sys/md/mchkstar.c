@@ -9,6 +9,7 @@
 #include "sys/psl.h"
 #include "sys/mtpr.h"
 #include "sys/user.h"
+#include "sys/sched.h"
 
 /*
  * SBI-related registers
@@ -188,8 +189,10 @@ machwtmo()
 	printf("sbi write timeout: fs %x er %x ta %x\n", fs, er, ta);
 	if ((ta & (TAMODE | TAPROT)) != (TAMODE | TAPROT))
 		panic("wtmo");
-	runrun++;
-	aston();
+        sched_lock_acquire();
+        runrun++;
+        sched_lock_release();
+        aston();
 	psignal(u.u_procp, SIGBUS);
 }
 
@@ -232,8 +235,10 @@ struct mframe *f;
 		/*
 		 * code stolen from setrun
 		 */
-		runrun++;
-		aston();
+                sched_lock_acquire();
+                runrun++;
+                sched_lock_release();
+                aston();
 		psignal(u.u_procp, SIGBUS);
 		return;
 	}

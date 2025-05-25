@@ -13,6 +13,7 @@
 #include "sys/cmap.h"
 #include "sys/vm.h"
 #include "sys/file.h"
+#include "sys/sched.h"
 
 struct pte *Pushmap;
 struct user *pushutl;
@@ -422,9 +423,11 @@ skipswap:
 		register s = spl6();
 		p->p_flag &= ~SPROCWT;
 		p->p_usrpri = 127;
-		wakeup((caddr_t)&(p->p_stat));
-		++runrun;
-		splx(s);
+                wakeup((caddr_t)&(p->p_stat));
+                sched_lock_acquire();
+                ++runrun;
+                sched_lock_release();
+                splx(s);
 	}
 
 	/*

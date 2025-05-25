@@ -7,6 +7,7 @@
 #include "sys/vm.h"
 #include "sys/pte.h"
 #include "sys/mtpr.h"
+#include "sys/sched.h"
 
 #define SQSIZE 0100	/* Must be power of 2 */
 #define HASH(x)	(( (int) x >> 5) & (SQSIZE-1))
@@ -153,17 +154,19 @@ restart:
 				p->p_stat = SRUN;
 				if (p->p_flag & SLOAD)
 					setrq(p);
-				if(p->p_pri < curpri) {
-					runrun++;
-					aston();
-				}
-				if ((p->p_flag&SLOAD) == 0) {
-					if (runout != 0) {
-						runout = 0;
-						wakeup((caddr_t)&runout);
-					}
-					wantin++;
-				}
+                                sched_lock_acquire();
+                                if(p->p_pri < curpri) {
+                                        runrun++;
+                                        aston();
+                                }
+                                if ((p->p_flag&SLOAD) == 0) {
+                                        if (runout != 0) {
+                                                runout = 0;
+                                                wakeup((caddr_t)&runout);
+                                        }
+                                        wantin++;
+                                }
+                                sched_lock_release();
 				/* END INLINE EXPANSION */
 				goto restart;
 			}
@@ -179,10 +182,14 @@ restart:
  */
 rqinit()
 {
-	register int i;
+        register int i;
 
-	for (i = 0; i < NQS; i++)
-		qs[i].ph_link = qs[i].ph_rlink = (struct proc *)&qs[i];
+        sched_lock_acquire();
+
+        for (i = 0; i < NQS; i++)
+                qs[i].ph_link = qs[i].ph_rlink = (struct proc *)&qs[i];
+
+        sched_lock_release();
 }
 
 /*
@@ -210,18 +217,20 @@ register struct proc *p;
 	p->p_stat = SRUN;
 	if (p->p_flag & SLOAD)
 		setrq(p);
-	splx(s);
-	if(p->p_pri < curpri) {
-		runrun++;
-		aston();
-	}
-	if ((p->p_flag&SLOAD) == 0) {
-		if(runout != 0) {
-			runout = 0;
-			wakeup((caddr_t)&runout);
-		}
-		wantin++;
-	}
+        splx(s);
+        sched_lock_acquire();
+        if(p->p_pri < curpri) {
+                runrun++;
+                aston();
+        }
+        if ((p->p_flag&SLOAD) == 0) {
+                if(runout != 0) {
+                        runout = 0;
+                        wakeup((caddr_t)&runout);
+                }
+                wantin++;
+        }
+        sched_lock_release();
 }
 
 /*
@@ -241,10 +250,12 @@ register struct proc *pp;
 		p += 2*4;	/* i.e. nice(4) */
 	if (p > PRIMAX)
 		p = PRIMAX;
-	if(p < curpri) {
-		runrun++;
-		aston();
-	}
+        if(p < curpri) {
+                sched_lock_acquire();
+                runrun++;
+                sched_lock_release();
+                aston();
+        }
 	pp->p_usrpri = p;
 	return(p);
 }

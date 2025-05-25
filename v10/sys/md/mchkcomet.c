@@ -7,6 +7,7 @@
 #include "sys/user.h"
 #include "sys/mtpr.h"
 #include "sys/psl.h"
+#include "sys/sched.h"
 
 #define	NMC750	8
 char *mc750name[NMC750] = {
@@ -83,8 +84,10 @@ long ps, pc;
 		/*
 		 * code stolen from setrun
 		 */
-		runrun++;
-		aston();
+                sched_lock_acquire();
+                runrun++;
+                sched_lock_release();
+                aston();
 		psignal(u.u_procp, SIGBUS);
 		return;
 	}
@@ -125,8 +128,10 @@ struct mc750frame *f;
 		/*
 		 * code stolen from setrun
 		 */
-		runrun++;
-		aston();
+                sched_lock_acquire();
+                runrun++;
+                sched_lock_release();
+                aston();
 		psignal(u.u_procp, SIGBUS);
 		return;
 	}

@@ -7,6 +7,7 @@
 #include "sys/cmap.h"
 #include "sys/conf.h"
 #include "sys/buf.h"	/* just for bclnlist! */
+#include "sys/sched.h"
 
 int	maxslp = MAXSLP;
 int	saferss = SAFERSS;
@@ -221,10 +222,12 @@ loop:
 		if (wantin) {
 			wantin = 0;
 			sleep((caddr_t)&lbolt, PSWP);
-		} else {
-			runout++;
-			sleep((caddr_t)&runout, PSWP);
-		}
+                } else {
+                        sched_lock_acquire();
+                        runout++;
+                        sched_lock_release();
+                        sleep((caddr_t)&runout, PSWP);
+                }
 		(void) spl0();
 		goto loop;
 	}
@@ -349,9 +352,11 @@ hardswap:
 	 * Want to swap someone in, but can't
 	 * so wait on runin.
 	 */
-	(void) spl6();
-	runin++;
-	sleep((caddr_t)&runin, PSWP);
+        (void) spl6();
+        sched_lock_acquire();
+        runin++;
+        sched_lock_release();
+        sleep((caddr_t)&runin, PSWP);
 	(void) spl0();
 	goto loop;
 }
@@ -381,12 +386,14 @@ vmmeter()
 		sum.v_swpout += cnt.v_swpout;
 		cnt.v_swpout = 0;
 	}
-	if (avefree < minfree && runout || proc[SWAPPID].p_slptime > maxslp/2) {
-		runout = 0;
-		runin = 0;
-		wakeup((caddr_t)&runin);
-		wakeup((caddr_t)&runout);
-	}
+        if (avefree < minfree && runout || proc[SWAPPID].p_slptime > maxslp/2) {
+                sched_lock_acquire();
+                runout = 0;
+                runin = 0;
+                wakeup((caddr_t)&runin);
+                wakeup((caddr_t)&runout);
+                sched_lock_release();
+        }
 	/*
 	 * jolt the pageout daemon, in case
 	 * there are just-cleaned pages but plenty of memory

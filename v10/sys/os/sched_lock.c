@@ -8,6 +8,12 @@ void sched_lock_release(void) {}
 #else
 SPINLOCK_ALIGNED spinlock_t sched_lock = SPINLOCK_INITIALIZER;
 
+void sched_lock_init(void)
+{
+    /* ensure the lock starts in an unlocked state */
+    bzero((caddr_t)&sched_lock, sizeof(sched_lock));
+}
+
 void sched_lock_acquire(void)
 {
     spin_lock(&sched_lock);
