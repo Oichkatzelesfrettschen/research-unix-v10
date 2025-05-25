@@ -1,7 +1,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "../../v10/ipc/h/spinlock.h"
+#include "../compat/spinlock.h"
 
 static spinlock_t lock = SPINLOCK_INITIALIZER;
 static int order[2] = {-1, -1};

@@ -9,6 +9,7 @@ add_compile_definitions(_POSIX_C_SOURCE=200809L _GNU_SOURCE)
 find_package(Threads REQUIRED)
 
 include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/../compat
     ${CMAKE_CURRENT_SOURCE_DIR}/../../v10/ipc/h
 )
 

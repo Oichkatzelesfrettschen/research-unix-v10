@@ -1,6 +1,6 @@
 #include <pthread.h>
 #include <stdio.h>
-#include "../../v10/ipc/h/spinlock.h"
+#include "../compat/spinlock.h"
 
 #define THREADS 4
 #define ITERATIONS 100000
