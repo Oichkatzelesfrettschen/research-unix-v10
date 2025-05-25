@@ -33,6 +33,13 @@ extern int ipcrogin();
 extern char *ipcpath();
 extern int ipcexec();
 
+/* status codes for mailbox style IPC */
+typedef enum {
+    IPC_STATUS_SUCCESS = 0,
+    IPC_STATUS_TIMEOUT,
+    IPC_STATUS_ERROR
+} ipc_status;
+
 /* import */
 extern int errno;
 extern char *errstr;

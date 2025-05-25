@@ -24,11 +24,11 @@ static message_t *message_alloc(const void *buf, size_t len)
     return m;
 }
 
-int mailbox_send(mailbox_t *mb, const void *buf, size_t len)
+ipc_status mailbox_send(mailbox_t *mb, const void *buf, size_t len)
 {
     message_t *m = message_alloc(buf, len);
     if(!m)
-        return -1;
+        return IPC_STATUS_ERROR;
     spin_lock(&mb->lock);
     if(mb->tail)
         mb->tail->next = m;
@@ -36,16 +36,16 @@ int mailbox_send(mailbox_t *mb, const void *buf, size_t len)
         mb->head = m;
     mb->tail = m;
     spin_unlock(&mb->lock);
-    return 0;
+    return IPC_STATUS_SUCCESS;
 }
 
-int mailbox_recv(mailbox_t *mb, void *buf, size_t *len)
+ipc_status mailbox_recv(mailbox_t *mb, void *buf, size_t *len)
 {
     spin_lock(&mb->lock);
     message_t *m = mb->head;
     if(!m) {
         spin_unlock(&mb->lock);
-        return -1;
+        return IPC_STATUS_ERROR;
     }
     mb->head = m->next;
     if(mb->tail == m)
@@ -57,15 +57,15 @@ int mailbox_recv(mailbox_t *mb, void *buf, size_t *len)
     *len = m->len;
     free(m->data);
     free(m);
-    return 0;
+    return IPC_STATUS_SUCCESS;
 }
 
-int exo_send(mailbox_t *target, const void *buf, size_t len)
+ipc_status exo_send(mailbox_t *target, const void *buf, size_t len)
 {
     return mailbox_send(target, buf, len);
 }
 
-int exo_recv(mailbox_t *mb, void *buf, size_t *len)
+ipc_status exo_recv(mailbox_t *mb, void *buf, size_t *len)
 {
     return mailbox_recv(mb, buf, len);
 }
