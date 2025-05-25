@@ -1,0 +1,33 @@
+CC ?= cc
+CFLAGS = -pthread -I ../../v10/ipc/h -DSMP_ENABLED
+SPINLOCK_SRC = ../../v10/ipc/spinlock.c
+
+TESTS = c23_hello spinlock_test thread_spinlock_stress \
+	process_spinlock_stress ptrace_concurrency_test
+
+all: $(TESTS)
+
+c23_hello: c23_hello.c
+	$(CC) -std=c2x $< -o $@
+
+spinlock_test: spinlock_test.c $(SPINLOCK_SRC)
+	$(CC) $(CFLAGS) $< $(SPINLOCK_SRC) -o $@
+
+thread_spinlock_stress: thread_spinlock_stress.c $(SPINLOCK_SRC)
+	$(CC) $(CFLAGS) $< $(SPINLOCK_SRC) -o $@
+
+process_spinlock_stress: process_spinlock_stress.c $(SPINLOCK_SRC)
+	$(CC) $(CFLAGS) $< $(SPINLOCK_SRC) -o $@
+
+ptrace_concurrency_test: ptrace_concurrency_test.c
+	$(CC) $(CFLAGS) $< -o $@
+
+check: all
+	./c23_test.sh
+	./spinlock_test.sh
+	./thread_spinlock_stress.sh
+	./process_spinlock_stress.sh
+	./ptrace_concurrency_test.sh
+
+clean:
+	rm -f $(TESTS) *.txt
