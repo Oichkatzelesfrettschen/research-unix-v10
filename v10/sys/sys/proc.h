@@ -5,7 +5,12 @@
  * process may be swapped out.
  * Other per process data (user.h)
  * is swapped with the process.
- */
+ *
+ * Each process now contains a mailbox used for
+ * inter-process communication.
+*/
+
+#include "../../ipc/h/mailbox.h"
 
 struct	proc
 {
@@ -52,6 +57,7 @@ struct	proc
 	short	Jp_idhash;	/* hashed based on p_pid for kill+exit+... */
 	struct	proc *p_pptr;	/* pointer to process structure of parent */
 	struct	inode *p_trace;	/* inode for tracing, see proca.c */
+	mailbox_t p_mailbox;    /* per-process mailbox */
 };
 
 #ifdef KERNEL
