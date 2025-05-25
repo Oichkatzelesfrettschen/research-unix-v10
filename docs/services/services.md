@@ -1,7 +1,9 @@
-# Exokernel Services
+# Modular Kernel Services
 
-This repository experiments with an exokernel style where most OS
-functionality is provided by optional user-level services.  Services
+This repository implements a modular kernel design where much of the
+operating system functionality can be provided by optional user-level
+services.  While the approach borrows ideas from both microkernel and
+exokernel architectures, the base system remains monolithic.  Services
 communicate using a very small message-passing API built around
 capability tokens.  Each service registers a name and a handler
 function.  Clients construct a `srv_message` structure containing a

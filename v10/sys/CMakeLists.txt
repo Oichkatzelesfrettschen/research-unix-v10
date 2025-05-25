@@ -13,7 +13,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Option controlling the SMP spinlock implementation
 option(SMP "Enable SMP support" OFF)
-option(EXO "Enable exokernel services" OFF)
+option(SERVICES "Enable optional services" OFF)
 option(BUILD_LIBPOSIX "Build libposix.a" OFF)
 option(LINK_SERVICES "Link microkernel services" OFF)
 if(SMP)
@@ -36,7 +36,7 @@ file(GLOB SRC_C
     "inet/*.c"
 )
 
-if(EXO)
+if(SERVICES)
     file(GLOB SERVICE_SRC_C
         "services/*.c"
     )
@@ -76,7 +76,7 @@ if(BUILD_LIBPOSIX)
     target_link_libraries(unix PRIVATE posix)
 endif()
 
-if(LINK_SERVICES AND EXO)
+if(LINK_SERVICES AND SERVICES)
     target_link_libraries(unix PRIVATE services)
 endif()
 
