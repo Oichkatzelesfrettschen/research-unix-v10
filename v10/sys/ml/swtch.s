@@ -14,7 +14,7 @@
 /*
  * Setrq(p), using fancy VAX instructions.
  *
- * Call should be made at spl6(), and p->p_stat should be SRUN
+ * Requires the run queue lock and p->p_stat should be SRUN
  */
 	.globl	_Setrq		# <<<massaged to jsb by "asm.sed">>>
 _Setrq:
@@ -38,7 +38,7 @@ set3:	.asciz	"setrq"
 /*
  * Remrq(p), using fancy VAX instructions
  *
- * Call should be made at spl6().
+ * Requires the run queue lock.
  */
 	.globl	_Remrq		# <<<massaged to jsb by "asm.sed">>>
 _Remrq:

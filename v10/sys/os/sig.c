@@ -7,6 +7,9 @@
 #include "sys/conf.h"
 #include "sys/vlimit.h"
 #include "sys/text.h"
+#include "../../ipc/h/spinlock.h"
+
+static spinlock_t sig_lock = SPINLOCK_INITIALIZER;
 
 /*
  * Send the specified signal to
@@ -35,8 +38,7 @@ psignal(p, sig)
 register struct proc *p;
 register int sig;
 {
-	register s;
-	register int (*action)();
+        register int (*action)();
 	long sigmask;
 
 	if ((unsigned)sig >= NSIG
@@ -87,8 +89,8 @@ register int sig;
 	 */
 	if (action == SIG_HOLD)
 		return;
-	s = spl6();
-	switch (p->p_stat) {
+        spin_lock(&sig_lock);
+        switch (p->p_stat) {
 
 	case SSLEEP:
 		/*
@@ -125,8 +127,8 @@ register int sig;
 			if (sig != SIGSTOP && p->p_pptr == &proc[INITPID]) {
 				psignal(p, SIGKILL);
 				p->p_sig &= ~sigmask;
-				splx(s);
-				return;
+                                spin_unlock(&sig_lock);
+                                return;
 			}
 			p->p_sig &= ~sigmask;
 			p->p_cursig = sig;
@@ -232,7 +234,7 @@ run:
 			p->p_pri = PUSER;
 	setrun(p);
 out:
-	splx(s);
+        spin_unlock(&sig_lock);
 }
 
 /*
@@ -423,13 +425,13 @@ psig()
 		 * If this catch value indicates automatic holding of
 		 * subsequent signals, set the hold value.
 		 */
-		if (SIGISDEFER(action)) {
-			(void) spl6();
-			P_SETHOLD(rp, sigmask);
-			u.u_signal[n] = SIG_HOLD;
-			(void) spl0();
-			action = SIGUNDEFER(action);
-		}
+                if (SIGISDEFER(action)) {
+                        spin_lock(&sig_lock);
+                        P_SETHOLD(rp, sigmask);
+                        u.u_signal[n] = SIG_HOLD;
+                        spin_unlock(&sig_lock);
+                        action = SIGUNDEFER(action);
+                }
 		sendsig(action, n);
 		rp->p_cursig = 0;
 		return;
