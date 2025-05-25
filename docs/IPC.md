@@ -19,6 +19,13 @@ value expressed in system ticks.  Internally they use the kernel's
 timeout expires, the operation returns with an error code and no
 message is transferred.
 
+### Status codes
+Mailbox operations return an `ipc_status` value:
+
+- `IPC_STATUS_SUCCESS` – operation completed successfully.
+- `IPC_STATUS_TIMEOUT` – the timeout expired before completion.
+- `IPC_STATUS_ERROR` – a generic failure occurred.
+
 ## Example usage
 The snippet below sends a message and waits up to one second (100 ticks)
 for a reply:
@@ -29,9 +36,9 @@ struct mbox *resp = mbox_open("resp");
 struct msg m = { .cmd = PING };
 
 mbox_send(req, &m, 0);           /* block until sent */
-if (mbox_recv(resp, &m, 100) == 0) {
+if (mbox_recv(resp, &m, 100) == IPC_STATUS_SUCCESS) {
     /* process reply */
 } else {
-    /* timeout */
+    /* timeout or error */
 }
 ```
