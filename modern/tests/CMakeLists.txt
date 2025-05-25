@@ -55,6 +55,10 @@ add_executable(mailbox_timeout_test mailbox_timeout_test.c ${SPINLOCK_SRC} ${MAI
 target_compile_definitions(mailbox_timeout_test PRIVATE SMP_ENABLED)
 target_link_libraries(mailbox_timeout_test PRIVATE Threads::Threads)
 
+add_executable(posix_wrappers_test posix_wrappers_test.c)
+add_executable(capability_client capability_client.c)
+target_link_libraries(capability_client PRIVATE Threads::Threads)
+
 enable_testing()
 add_test(NAME c23_test
     COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/c23_test.sh)
@@ -83,3 +87,10 @@ add_test(NAME mqueue_blocking_test COMMAND $<TARGET_FILE:mqueue_blocking_test>)
 add_test(NAME mqueue_overflow_test COMMAND $<TARGET_FILE:mqueue_overflow_test>)
 add_test(NAME mqueue_timeout_test COMMAND $<TARGET_FILE:mqueue_timeout_test>)
 add_test(NAME mailbox_timeout_test COMMAND $<TARGET_FILE:mailbox_timeout_test>)
+add_test(NAME posix_wrappers_test
+    COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/posix_wrappers_test.sh)
+set_tests_properties(posix_wrappers_test PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_test(NAME capability_integration_test
+    COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/capability_integration_test.sh)
+set_tests_properties(capability_integration_test PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

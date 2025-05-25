@@ -14,11 +14,12 @@ test: check
 ifeq ($(CAPNP),1)
 	$(MAKE) -C modern/libcapnp CC=$(CC) all
 	$(MAKE) -C modern/memory_server CC=$(CC) all
-	$(MAKE) -C modern/tests CC=$(CC) mailbox_timeout_test exo_ipc_status_test
+	$(MAKE) -C modern/tests CC=$(CC) mailbox_timeout_test exo_ipc_status_test posix_wrappers_test capability_client
 	./modern/memory_server/memory_server & \
 	memsrv_pid=$$!; \
 	./modern/tests/mailbox_timeout_test; \
 	./modern/tests/exo_ipc_status_test; \
+	./modern/tests/capability_integration_test.sh; \
 	kill $$memsrv_pid
 endif
 
