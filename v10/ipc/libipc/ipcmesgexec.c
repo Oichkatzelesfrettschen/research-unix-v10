@@ -1,5 +1,7 @@
 #include <ipc.h>
 #include "defs.h"
+#include "spinlock.h"
+extern spinlock_t ipc_lock;
 
 extern int mesg_ld;
 
@@ -25,10 +27,12 @@ ipcmesgexec(name, param, cmd)
 		return -1;
 	}
 	len = strlen(cmd)+1;
-	if (write(fd, cmd, len)!=len) {
-		errstr = "write error";
-		close(fd);
-		return -1;
-	}
+       if (write(fd, cmd, len)!=len) {
+               spin_lock(&ipc_lock);
+               errstr = "write error";
+               spin_unlock(&ipc_lock);
+               close(fd);
+               return -1;
+       }
 	return fd;
 }

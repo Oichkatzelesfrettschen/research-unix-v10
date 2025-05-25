@@ -2,7 +2,9 @@
 #include <ipc.h>
 #include <sys/ttyio.h>
 #include "defs.h"
+#include "spinlock.h"
 #include "libc.h"
+extern spinlock_t ipc_lock;
 
 /* this better be larger than either login names or passwords */
 #define PWDSIZE 16
@@ -28,22 +30,28 @@ ipclogin(fd)
 	char	*rbuf;
 	FILE	*tty;
 
-	cc = read(fd, buf, 2) ;
-	if (cc <= 0) {
-		errstr = "ipclogin can't read remote system";
-		return(-1);
-	}
+       cc = read(fd, buf, 2) ;
+       if (cc <= 0) {
+               spin_lock(&ipc_lock);
+               errstr = "ipclogin can't read remote system";
+               spin_unlock(&ipc_lock);
+               return(-1);
+       }
 	if (buf[0] == 'O' && buf[1] == 'K')
 		return fd ;
-	tty = fopen("/dev/tty", "r+");
-	if (tty == NULL) {
-		errstr = "ipclogin can't open /dev/tty";
-		return -1;
-	}
-	if (ioctl(fileno(tty), TIOCGETP, &echo) < 0) {
-		errstr = "ipclogin can't log in";
-		return(-1);
-	}
+       tty = fopen("/dev/tty", "r+");
+       if (tty == NULL) {
+               spin_lock(&ipc_lock);
+               errstr = "ipclogin can't open /dev/tty";
+               spin_unlock(&ipc_lock);
+               return -1;
+       }
+       if (ioctl(fileno(tty), TIOCGETP, &echo) < 0) {
+               spin_lock(&ipc_lock);
+               errstr = "ipclogin can't log in";
+               spin_unlock(&ipc_lock);
+               return(-1);
+       }
 	noecho = echo;
 	noecho.sg_flags &= ~ECHO;
 	write (fileno(tty), "please ", 7) ;
@@ -74,11 +82,13 @@ ipclogin(fd)
 			break ;
 	}
 	fclose(tty);
-	if (cc <= 0) {
-		close(fd);
-		errstr = "ipclogin can't log in";
-		return -1;
-	}
+       if (cc <= 0) {
+               close(fd);
+               spin_lock(&ipc_lock);
+               errstr = "ipclogin can't log in";
+               spin_unlock(&ipc_lock);
+               return -1;
+       }
 	return fd;
 }
 

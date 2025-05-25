@@ -3,9 +3,11 @@
 #include <sys/stat.h>
 #include <ipc.h>
 #include "defs.h"
+#include "spinlock.h"
 
 /* exported */
 char *errstr;
+extern spinlock_t ipc_lock;
 
 /* imports */
 extern int atoi();
@@ -230,8 +232,10 @@ _ipcabort(no, err, ip)
 			ip->rfd = -1;
 		}
 	}
-	errstr = err;
-	errno = no;
-	return -1;
+       spin_lock(&ipc_lock);
+       errstr = err;
+       spin_unlock(&ipc_lock);
+       errno = no;
+       return -1;
 }
 

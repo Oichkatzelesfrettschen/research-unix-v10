@@ -4,6 +4,8 @@
 #include <ipc.h>
 #include <libc.h>
 #include "defs.h"
+#include "spinlock.h"
+extern spinlock_t ipc_lock;
 
 /* buffer definition */
 #define BUFLEN 512
@@ -187,10 +189,15 @@ _reply_read(fd)
 	errno = atoi(f[0]);
 	if ((ptr=strchr(f[1], '\n'))!=NULL)
 		*ptr = '\0';
-	if (errno!=0)
-		errstr = f[1];
-	else
-		ipcname = f[1];
-	return 0;
+       if (errno!=0) {
+               spin_lock(&ipc_lock);
+               errstr = f[1];
+               spin_unlock(&ipc_lock);
+       } else {
+               spin_lock(&ipc_lock);
+               ipcname = f[1];
+               spin_unlock(&ipc_lock);
+       }
+       return 0;
 }
 
