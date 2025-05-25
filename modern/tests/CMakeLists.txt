@@ -9,6 +9,8 @@ add_compile_definitions(_POSIX_C_SOURCE=200809L _GNU_SOURCE)
 
 find_package(Threads REQUIRED)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../compat/posix ${CMAKE_CURRENT_BINARY_DIR}/posix)
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../compat
     ${CMAKE_CURRENT_SOURCE_DIR}/../../v10/ipc/h
@@ -18,42 +20,42 @@ set(SPINLOCK_SRC ${CMAKE_CURRENT_SOURCE_DIR}/../../v10/ipc/spinlock.c)
 set(MAILBOX_SRC ${CMAKE_CURRENT_SOURCE_DIR}/../../v10/ipc/libipc/mailbox.c)
 
 add_executable(c23_hello c23_hello.c)
-target_link_libraries(c23_hello PRIVATE Threads::Threads)
+target_link_libraries(c23_hello PRIVATE posix Threads::Threads)
 
 add_executable(spinlock_test spinlock_test.c ${SPINLOCK_SRC})
 target_compile_definitions(spinlock_test PRIVATE SMP_ENABLED)
-target_link_libraries(spinlock_test PRIVATE Threads::Threads)
+target_link_libraries(spinlock_test PRIVATE posix Threads::Threads)
 
 add_executable(thread_spinlock_stress thread_spinlock_stress.c ${SPINLOCK_SRC})
 target_compile_definitions(thread_spinlock_stress PRIVATE SMP_ENABLED)
-target_link_libraries(thread_spinlock_stress PRIVATE Threads::Threads)
+target_link_libraries(thread_spinlock_stress PRIVATE posix Threads::Threads)
 
 add_executable(process_spinlock_stress process_spinlock_stress.c ${SPINLOCK_SRC})
 target_compile_definitions(process_spinlock_stress PRIVATE SMP_ENABLED)
-target_link_libraries(process_spinlock_stress PRIVATE Threads::Threads)
+target_link_libraries(process_spinlock_stress PRIVATE posix Threads::Threads)
 
 add_executable(ptrace_concurrency_test ptrace_concurrency_test.c)
-target_link_libraries(ptrace_concurrency_test PRIVATE Threads::Threads)
+target_link_libraries(ptrace_concurrency_test PRIVATE posix Threads::Threads)
 
 add_executable(spinlock_fairness spinlock_fairness.c ${SPINLOCK_SRC})
 target_compile_definitions(spinlock_fairness PRIVATE SMP_ENABLED USE_TICKET_LOCK)
-target_link_libraries(spinlock_fairness PRIVATE Threads::Threads)
+target_link_libraries(spinlock_fairness PRIVATE posix Threads::Threads)
 
 add_executable(mqueue_ordering_test mqueue_ordering_test.c)
-target_link_libraries(mqueue_ordering_test PRIVATE Threads::Threads rt)
+target_link_libraries(mqueue_ordering_test PRIVATE posix Threads::Threads rt)
 
 add_executable(mqueue_blocking_test mqueue_blocking_test.c)
-target_link_libraries(mqueue_blocking_test PRIVATE Threads::Threads rt)
+target_link_libraries(mqueue_blocking_test PRIVATE posix Threads::Threads rt)
 
 add_executable(mqueue_overflow_test mqueue_overflow_test.c)
-target_link_libraries(mqueue_overflow_test PRIVATE rt)
+target_link_libraries(mqueue_overflow_test PRIVATE posix rt)
 
 add_executable(mqueue_timeout_test mqueue_timeout_test.c)
-target_link_libraries(mqueue_timeout_test PRIVATE rt)
+target_link_libraries(mqueue_timeout_test PRIVATE posix rt)
 
 add_executable(mailbox_timeout_test mailbox_timeout_test.c ${SPINLOCK_SRC} ${MAILBOX_SRC})
 target_compile_definitions(mailbox_timeout_test PRIVATE SMP_ENABLED)
-target_link_libraries(mailbox_timeout_test PRIVATE Threads::Threads)
+target_link_libraries(mailbox_timeout_test PRIVATE posix Threads::Threads)
 
 enable_testing()
 add_test(NAME c23_test
