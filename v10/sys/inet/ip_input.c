@@ -10,6 +10,9 @@
 int	ipqmaxlen = 50;
 struct	ipq	ipq;			/* ip reass. queue */
 
+#ifdef SMP_ENABLED
+spinlock_t ipq_lock = SPINLOCK_INITIALIZER;
+#endif
 u_char	ipcksum = 1;
 struct	block *ip_reass();
 
@@ -125,12 +128,16 @@ bad:
 
 struct block *
 ip_reass(bp)
-	register struct block *bp;
+        register struct block *bp;
 {
-	register struct block *fp;
-	register struct ip *ip = (struct ip *) bp->rptr;
-	register struct block *pqbp, *qbp, *nqbp;
-	int i, next;
+        register struct block *fp;
+        register struct ip *ip = (struct ip *) bp->rptr;
+        register struct block *pqbp, *qbp, *nqbp;
+        int i, next;
+
+#ifdef SMP_ENABLED
+        spin_lock(&ipq_lock);
+#endif
 
 	/*
 	 * Look for queue of fragments
@@ -146,11 +153,19 @@ ip_reass(bp)
 	/* if this datagram is not a fragment then toss out fragments
 	 * for this connection.
 	 */
-	if (!ip->ip_tos && ip->ip_off == 0) {
-		if(fp != (struct block *)0)
-			ip_freef(fp);
-		return(bp);
-	}
+        if (!ip->ip_tos && ip->ip_off == 0) {
+                if(fp != (struct block *)0){
+#ifdef SMP_ENABLED
+                        spin_unlock(&ipq_lock);
+#endif
+                        ip_freef(fp);
+                } else {
+#ifdef SMP_ENABLED
+                        spin_unlock(&ipq_lock);
+#endif
+                }
+                return(bp);
+        }
 
 	/*
 	 * If first fragment to arrive, create a reassembly queue.
@@ -238,12 +253,20 @@ insert:
 	next = 0;
 	for (pqbp=0,qbp=fp->next; qbp!=(struct block *)0;
 		pqbp=qbp,qbp=ASFRAG(qbp)->ipf_next) {
-		if (ASFRAG(qbp)->ip_off != next)
-			return (0);
+                if (ASFRAG(qbp)->ip_off != next){
+#ifdef SMP_ENABLED
+                        spin_unlock(&ipq_lock);
+#endif
+                        return (0);
+                }
 		next += ASFRAG(qbp)->ip_len;
 	}
-	if (pqbp != (struct block *)0 && ASFRAG(pqbp)->ip_tos)
-		return (0);
+        if (pqbp != (struct block *)0 && ASFRAG(pqbp)->ip_tos){
+#ifdef SMP_ENABLED
+                spin_unlock(&ipq_lock);
+#endif
+                return (0);
+        }
 
 	/*
 	 * Reassembly is complete; concatenate fragments by removing all
@@ -265,13 +288,19 @@ insert:
 	((struct ip *)bp->rptr)->ip_src = ASIPQ(fp)->ipq_src;
 	((struct ip *)bp->rptr)->ip_dst = ASIPQ(fp)->ipq_dst;
 	((struct ip *)bp->rptr)->ip_tos = 0;
-	fp->next = 0;
-	ip_freef(fp);
-	return (bp);
+        fp->next = 0;
+#ifdef SMP_ENABLED
+        spin_unlock(&ipq_lock);
+#endif
+        ip_freef(fp);
+        return (bp);
 
 dropfrag:
-	bp_free(bp);
-	return (0);
+#ifdef SMP_ENABLED
+        spin_unlock(&ipq_lock);
+#endif
+        bp_free(bp);
+        return (0);
 }
 
 /*
@@ -279,9 +308,13 @@ dropfrag:
  * associated datagrams.
  */
 ip_freef(fp)
-	struct block *fp;
+        struct block *fp;
 {
-	register struct block *q, *p;
+        register struct block *q, *p;
+
+#ifdef SMP_ENABLED
+        spin_lock(&ipq_lock);
+#endif
 
 	for (p = fp->next; p != 0; p = q) {
 		q = ASFRAG(p)->ipf_next;
@@ -297,7 +330,10 @@ ip_freef(fp)
 		ASIPQ(q)->prev = p;
 	else
 		ipq.prev = p;
-	freeb(fp);
+        freeb(fp);
+#ifdef SMP_ENABLED
+        spin_unlock(&ipq_lock);
+#endif
 }
 
 /*
@@ -307,16 +343,30 @@ ip_freef(fp)
  */
 ip_slowtimo()
 {
-	register struct block *fp, *nfp;
-	int s = spl6();
+        register struct block *fp, *nfp;
+        int s = spl6();
 
-	for (fp=ipq.next; fp!=(struct block *)0; fp=nfp) {
-		nfp = ASIPQ(fp)->next;
-		if (--ASIPQ(fp)->ipq_ttl == 0)
-			ip_freef(fp);
-	}
-	timeout(ip_slowtimo, (caddr_t)0, HZ);
-	splx(s);
+#ifdef SMP_ENABLED
+        spin_lock(&ipq_lock);
+#endif
+
+        for (fp=ipq.next; fp!=(struct block *)0; fp=nfp) {
+                nfp = ASIPQ(fp)->next;
+                if (--ASIPQ(fp)->ipq_ttl == 0){
+#ifdef SMP_ENABLED
+                        spin_unlock(&ipq_lock);
+#endif
+                        ip_freef(fp);
+#ifdef SMP_ENABLED
+                        spin_lock(&ipq_lock);
+#endif
+                }
+        }
+#ifdef SMP_ENABLED
+        spin_unlock(&ipq_lock);
+#endif
+        timeout(ip_slowtimo, (caddr_t)0, HZ);
+        splx(s);
 }
 
 #if NOTDEF

@@ -109,6 +109,11 @@ extern struct ipif *ip_ifwithaddr(), *ip_ifonnetof();
 #define IP_BODY_LIMIT 8192
 #define IP_MSG_LIMIT (sizeof(struct ipovly) + IP_BODY_LIMIT)
 
+#ifdef SMP_ENABLED
+#include "../../../ipc/h/spinlock.h"
+extern spinlock_t ipq_lock;
+#endif
+
 /* an ip routing record */
 struct ip_route{
 	long time;		/* time of last access */
