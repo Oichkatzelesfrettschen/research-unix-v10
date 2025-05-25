@@ -26,11 +26,11 @@ static message_t *message_alloc(const void *buf, size_t len)
     return m;
 }
 
-ipc_status mailbox_send(mailbox_t *mb, const void *buf, size_t len)
+exo_ipc_status mailbox_send(mailbox_t *mb, const void *buf, size_t len)
 {
     message_t *m = message_alloc(buf, len);
     if(!m)
-        return IPC_STATUS_ERROR;
+        return EXO_IPC_STATUS_ERROR;
     spin_lock(&mb->lock);
     if(mb->tail)
         mb->tail->next = m;
@@ -38,16 +38,16 @@ ipc_status mailbox_send(mailbox_t *mb, const void *buf, size_t len)
         mb->head = m;
     mb->tail = m;
     spin_unlock(&mb->lock);
-    return IPC_STATUS_SUCCESS;
+    return EXO_IPC_STATUS_SUCCESS;
 }
 
-ipc_status mailbox_recv(mailbox_t *mb, void *buf, size_t *len)
+exo_ipc_status mailbox_recv(mailbox_t *mb, void *buf, size_t *len)
 {
     spin_lock(&mb->lock);
     message_t *m = mb->head;
     if(!m) {
         spin_unlock(&mb->lock);
-        return IPC_STATUS_ERROR;
+        return EXO_IPC_STATUS_ERROR;
     }
     mb->head = m->next;
     if(mb->tail == m)
@@ -59,27 +59,27 @@ ipc_status mailbox_recv(mailbox_t *mb, void *buf, size_t *len)
     *len = m->len;
     free(m->data);
     free(m);
-    return IPC_STATUS_SUCCESS;
+    return EXO_IPC_STATUS_SUCCESS;
 }
 
-ipc_status exo_send(mailbox_t *target, const void *buf, size_t len)
+exo_ipc_status exo_send(mailbox_t *target, const void *buf, size_t len)
 {
     return mailbox_send(target, buf, len);
 }
 
-ipc_status exo_recv(mailbox_t *mb, void *buf, size_t *len)
+exo_ipc_status exo_recv(mailbox_t *mb, void *buf, size_t *len)
 {
     return mailbox_recv(mb, buf, len);
 }
 
 #define TICK_USEC 10000
 
-int mailbox_recv_t(mailbox_t *mb, void *buf, size_t *len, unsigned timeout)
+exo_ipc_status mailbox_recv_t(mailbox_t *mb, void *buf, size_t *len, unsigned timeout)
 {
     unsigned waited = 0;
     while (waited <= timeout) {
-        if (mailbox_recv(mb, buf, len) == 0)
-            return 0;
+        if (mailbox_recv(mb, buf, len) == EXO_IPC_STATUS_SUCCESS)
+            return EXO_IPC_STATUS_SUCCESS;
         if (waited == timeout)
             break;
         struct timespec ts = {0};
@@ -87,6 +87,6 @@ int mailbox_recv_t(mailbox_t *mb, void *buf, size_t *len, unsigned timeout)
         nanosleep(&ts, NULL);
         waited++;
     }
-    return -1;
+    return EXO_IPC_STATUS_TIMEOUT;
 }
 

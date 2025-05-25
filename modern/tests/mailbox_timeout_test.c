@@ -41,16 +41,16 @@ int main(void)
 
     char buf[8];
     size_t len = sizeof(buf);
-    int r1 = Recv_T(&mb2, buf, &len, 15);
-    int ok1 = (r1 == -1);
+    exo_ipc_status r1 = Recv_T(&mb2, buf, &len, 15);
+    int ok1 = (r1 == EXO_IPC_STATUS_TIMEOUT);
 
     len = sizeof(buf);
-    int r2 = Recv_T(&mb1, buf, &len, 15);
-    int ok2 = (r2 == 0 && strcmp(buf, "one") == 0);
+    exo_ipc_status r2 = Recv_T(&mb1, buf, &len, 15);
+    int ok2 = (r2 == EXO_IPC_STATUS_SUCCESS && strcmp(buf, "one") == 0);
 
     len = sizeof(buf);
-    int r3 = Recv_T(&mb2, buf, &len, 30);
-    int ok3 = (r3 == 0 && strcmp(buf, "two") == 0);
+    exo_ipc_status r3 = Recv_T(&mb2, buf, &len, 30);
+    int ok3 = (r3 == EXO_IPC_STATUS_SUCCESS && strcmp(buf, "two") == 0);
 
     pthread_join(t1, NULL);
     pthread_join(t2, NULL);

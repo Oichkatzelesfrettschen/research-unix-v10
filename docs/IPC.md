@@ -20,11 +20,11 @@ timeout expires, the operation returns with an error code and no
 message is transferred.
 
 ### Status codes
-Mailbox operations return an `ipc_status` value:
+Mailbox operations return an `exo_ipc_status` value:
 
-- `IPC_STATUS_SUCCESS` – operation completed successfully.
-- `IPC_STATUS_TIMEOUT` – the timeout expired before completion.
-- `IPC_STATUS_ERROR` – a generic failure occurred.
+- `EXO_IPC_STATUS_SUCCESS` – operation completed successfully.
+- `EXO_IPC_STATUS_TIMEOUT` – the timeout expired before completion.
+- `EXO_IPC_STATUS_ERROR` – a generic failure occurred.
 
 ## Example usage
 The snippet below sends a message and waits up to one second (100 ticks)
@@ -36,7 +36,7 @@ struct mbox *resp = mbox_open("resp");
 struct msg m = { .cmd = PING };
 
 mbox_send(req, &m, 0);           /* block until sent */
-if (mbox_recv(resp, &m, 100) == IPC_STATUS_SUCCESS) {
+if (mbox_recv(resp, &m, 100) == EXO_IPC_STATUS_SUCCESS) {
     /* process reply */
 } else {
     /* timeout or error */
@@ -48,7 +48,7 @@ which simply forwards to `mailbox_recv_t` with the given timeout:
 
 ```c
 size_t len = sizeof(m);
-if (Recv_T(resp, &m, &len, 50) == 0) {
+if (Recv_T(resp, &m, &len, 50) == EXO_IPC_STATUS_SUCCESS) {
     /* got a message within 50 ticks */
 }
 ```
