@@ -15,6 +15,7 @@ include_directories(
 )
 
 set(SPINLOCK_SRC ${CMAKE_CURRENT_SOURCE_DIR}/../../v10/ipc/spinlock.c)
+set(MAILBOX_SRC ${CMAKE_CURRENT_SOURCE_DIR}/../../v10/ipc/libipc/mailbox.c)
 
 add_executable(c23_hello c23_hello.c)
 target_link_libraries(c23_hello PRIVATE Threads::Threads)
@@ -50,6 +51,10 @@ target_link_libraries(mqueue_overflow_test PRIVATE rt)
 add_executable(mqueue_timeout_test mqueue_timeout_test.c)
 target_link_libraries(mqueue_timeout_test PRIVATE rt)
 
+add_executable(mailbox_timeout_test mailbox_timeout_test.c ${SPINLOCK_SRC} ${MAILBOX_SRC})
+target_compile_definitions(mailbox_timeout_test PRIVATE SMP_ENABLED)
+target_link_libraries(mailbox_timeout_test PRIVATE Threads::Threads)
+
 enable_testing()
 add_test(NAME c23_test
     COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/c23_test.sh)
@@ -77,3 +82,4 @@ add_test(NAME mqueue_ordering_test COMMAND $<TARGET_FILE:mqueue_ordering_test>)
 add_test(NAME mqueue_blocking_test COMMAND $<TARGET_FILE:mqueue_blocking_test>)
 add_test(NAME mqueue_overflow_test COMMAND $<TARGET_FILE:mqueue_overflow_test>)
 add_test(NAME mqueue_timeout_test COMMAND $<TARGET_FILE:mqueue_timeout_test>)
+add_test(NAME mailbox_timeout_test COMMAND $<TARGET_FILE:mailbox_timeout_test>)

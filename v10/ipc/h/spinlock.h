@@ -6,6 +6,10 @@
 #include <stdatomic.h>
 #include <stdalign.h>
 
+#ifndef ATOMIC_VAR_INIT
+#define ATOMIC_VAR_INIT(value) (value)
+#endif
+
 #if defined(__GCC_DESTRUCTIVE_SIZE)
 #define SPINLOCK_CACHE_LINE_SIZE __GCC_DESTRUCTIVE_SIZE
 #elif defined(__x86_64__) || defined(__i386__)

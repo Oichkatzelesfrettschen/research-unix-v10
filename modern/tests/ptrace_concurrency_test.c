@@ -1,3 +1,5 @@
+#define _XOPEN_SOURCE 700
+#define _POSIX_C_SOURCE 200809L
 #include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
@@ -6,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <time.h>
 
 #define CHILDREN 4
 
@@ -20,7 +23,9 @@ void *tracer(void *arg)
     }
     waitpid(pid, NULL, 0);
     ptrace(PTRACE_CONT, pid, NULL, NULL);
-    usleep(100000);
+    struct timespec ts = {0};
+    ts.tv_nsec = 100000000; /* 100ms */
+    nanosleep(&ts, NULL);
     ptrace(PTRACE_DETACH, pid, NULL, NULL);
     return NULL;
 }

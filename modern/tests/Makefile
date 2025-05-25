@@ -34,6 +34,7 @@ check: all
 	./process_spinlock_stress.sh
 	./ptrace_concurrency_test.sh
 	./spinlock_fairness
+	./mailbox_timeout_test.sh
 
 clean:
 	rm -f $(TESTS) *.txt
