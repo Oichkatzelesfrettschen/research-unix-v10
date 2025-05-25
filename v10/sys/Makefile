@@ -1,4 +1,6 @@
-CC ?= cc
+ARCH ?= $(shell uname -m)
+CROSS_COMPILE ?=
+CC ?= $(CROSS_COMPILE)gcc
 CFLAGS ?= -O
 LDFLAGS ?=
 SMP ?= 0
@@ -9,7 +11,9 @@ else
 SPINLOCK=-DSPINLOCK_UNIPROCESSOR
 endif
 
-CFLAGS += $(SPINLOCK) -I.
+CFLAGS += -std=c23 $(SPINLOCK) -I.
+
+export CROSS_COMPILE ARCH CC CFLAGS SMP
 
 SUBDIRS = os vm md io fs ml inet
 SRC_C := $(foreach d,$(SUBDIRS),$(wildcard $(d)/*.c))
@@ -18,9 +22,12 @@ OBJ := $(SRC_C:.c=.o) $(SRC_S:.s=.o)
 
 KERNEL = unix
 
-.PHONY: all clean
+.PHONY: all clean $(SUBDIRS)
 
-all: $(KERNEL)
+all: $(SUBDIRS) $(KERNEL)
+
+$(SUBDIRS):
+	$(MAKE) -C $@
 
 $(KERNEL): $(OBJ)
 $(CC) $(LDFLAGS) -nostdlib -o $@ $(OBJ)
@@ -32,5 +39,6 @@ $(CC) $(LDFLAGS) -nostdlib -o $@ $(OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
+	for d in $(SUBDIRS); do $(MAKE) -C $$d clean; done
 	rm -f $(OBJ) $(KERNEL)
 
