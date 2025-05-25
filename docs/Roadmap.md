@@ -1,6 +1,6 @@
 # POSIX Implementation Roadmap
 
-This document summarizes the multi-phase plan for adding a capability-aware POSIX compatibility layer to the Research UNIX V10 code base. Each phase builds on the previous and introduces new functionality, tests and documentation.
+This document summarizes the multi-phase plan for adding a capability-aware POSIX compatibility layer to the Research UNIX V10 code base. Each phase builds on the previous and introduces new functionality, tests and documentation.  Supplemental historical notes can be found in the `ben-books` collection under `docs/ben-books/`.
 
 ## Phase I - Foundation
 - Establish a cross-platform build system using Make, CMake or Meson.
@@ -50,3 +50,9 @@ This document summarizes the multi-phase plan for adding a capability-aware POSI
 
 ### Design Principles
 Across all phases the implementation emphasizes capability-based security, robust error handling and efficient resource management. Buffer overflows and integer errors must be prevented, and all operations validated against the caller's capability set.
+
+### Further Reading
+
+- [ben-books collection](ben-books/) – additional documentation and historical context.
+- [Mailbox IPC](IPC.md) – details on the message-based interprocess communication used in the tests.
+- [Modular Services Testing](services/testing.md) – instructions for running the POSIX wrapper test suite.
