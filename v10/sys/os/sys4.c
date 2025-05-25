@@ -9,6 +9,10 @@
 #include "sys/timeb.h"
 #include "sys/times.h"
 #include "sys/file.h"
+#include "../../ipc/h/spinlock.h"
+
+static spinlock_t time_lock = SPINLOCK_INITIALIZER;
+static spinlock_t sig_lock = SPINLOCK_INITIALIZER;
 
 /*
  * Everything in this file is a routine implementing a system call.
@@ -37,10 +41,10 @@ ftime()
 	extern int timezone, dstflag;
 
 	uap = (struct a *)u.u_ap;
-	(void) spl7();
-	t.time = time;
-	ms = lbolt;
-	(void) spl0();
+        spin_lock(&time_lock);
+        t.time = time;
+        ms = lbolt;
+        spin_unlock(&time_lock);
 	if (ms > HZ) {
 		ms -= HZ;
 		t.time++;
@@ -395,7 +399,7 @@ ssig()
 	}
 	u.u_r.r_val1 = (int)u.u_signal[a];
 	sigmask = SIGMASK(a);
-	(void) spl6();
+        spin_lock(&sig_lock);
 	if (u.u_signal[a] == SIG_IGN)
 		p->p_sig &= ~sigmask;		/* never to be seen again */
 	u.u_signal[a] = f;
@@ -407,7 +411,7 @@ ssig()
 		P_SETHOLD(p, sigmask);
 	else
 		P_SETCATCH(p, sigmask);
-	(void) spl0();
+        spin_unlock(&sig_lock);
 	if (uap->signo & SIGDOPAUSE)
 		pause();
 }
