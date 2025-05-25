@@ -1,7 +1,7 @@
 # Set CROSS_COMPILE using `source tools/cross-env.sh <arch>`
 CROSS_COMPILE ?=
 CC ?= $(CROSS_COMPILE)gcc
-CFLAGS = -std=c23 -pthread -I ../../v10/ipc/h -DSMP_ENABLED
+CFLAGS = -std=c23 -pthread -I ../compat -I ../../v10/ipc/h -DSMP_ENABLED
 SPINLOCK_SRC = ../../v10/ipc/spinlock.c
 
 TESTS = c23_hello spinlock_test thread_spinlock_stress \

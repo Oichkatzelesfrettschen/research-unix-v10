@@ -3,7 +3,7 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include "../../v10/ipc/h/spinlock.h"
+#include "../compat/spinlock.h"
 
 #define PROCESSES 4
 #define ITERATIONS 10000
