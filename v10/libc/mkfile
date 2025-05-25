@@ -39,7 +39,6 @@ OBJ=$L(_assert.o) $L(_cleanup.o) $L(_exit.o) $L(_printnum.o) $L(abort.o)\
 	$L(label.o) $L(limits.o)\
 	$L(log.o) $L(lseek.o) $L(llseek.o) $L(lstat.o) $L(ltol3.o)\
 	$L(malloc.o) $L(max.o) $L(mcount.o) $L(memccpy.o) $L(memchr.o) $L(memcmp.o)\
-	$L(memcpy.o) $L(memmove.o) $L(memset.o) $L(min.o) $L(mkdir.o) $L(mknod.o) $L(mktemp.o)\
 	$L(modf.o) $L(mon.o) $L(nametty.o) $L(nap.o) $L(nice.o) $L(nlist.o)\
 	$L(onexit.o) $L(open.o) $L(opendir.o) $L(openshares.o) $L(pdirread.o)\
 	$L(perror.o) $L(pipe.o) $L(popen.o) $L(pow.o) $L(pow10.o)\
@@ -197,7 +196,6 @@ memcmp.o:	gen/memcmp.s
 memcpy.o:	gen/memcpy.s
 memmove.o:	gen/memmove.c
 	lcc $LCCARGS $prereq
-memset.o:	gen/memset.s
 min.o:	gen/min.c
 mktemp.o:	gen/mktemp.c
 modf.o:	gen/modf.s

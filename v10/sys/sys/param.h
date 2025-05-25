@@ -129,6 +129,9 @@
  * user-accessible types and macros
  */
 #include "sys/types.h"
+#include <string.h>
+#define bcopy(src,dst,len) memmove((dst),(src),(len))
+#define bzero(dst,len) memset((dst),0,(len))
 
 /*
  * very long stuff

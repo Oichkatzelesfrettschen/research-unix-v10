@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <string.h>
 #ifdef V6UNIX
 #ifdef TRACE
 #define	RTSNAME	"/../../../../usr/local/v6trc"
@@ -281,8 +282,8 @@ experm:
 		/* note that st_rdev is a short but due to alingnmemt */
 		/* problems the rest of the structure is out of sync */
 		j = (int)((char *)(&stat32v.st_size)-(char *)(&stat32v.st_dev));
-		bcopy(&stat32v, args[1], j);
-		bcopy(&stat32v.st_size, args[1]+j-2, sizeof(struct stat)-j);
+                memmove(args[1], &stat32v, j);
+                memmove(args[1]+j-2, &stat32v.st_size, sizeof(struct stat)-j);
 #endif
 #ifdef	V6UNIX
 		/* point to user area as v6stat structure */
@@ -310,7 +311,7 @@ experm:
 		timebuf.t2 = longrev(timebuf.t2) + timebuf.t1;
 		timebuf.t3 = longrev(timebuf.t3);
 		timebuf.t4 = longrev(timebuf.t4);
-		bcopy(&timebuf.t2,args[0],sizeof(struct timebuf)-sizeof(long));
+                memmove(args[0], &timebuf.t2, sizeof(struct timebuf)-sizeof(long));
 		break;
 #ifdef	V6UNIX
 	case	SLEEP:

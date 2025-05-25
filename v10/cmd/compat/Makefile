@@ -1,12 +1,12 @@
 v7run:	compat.o v7run.o v7start.o v7traps.o unixemts.o rdosig.o\
-	dofloat.o bcopy.o
-	ld -e start -N -o v7run compat.o v7run.o v7start.o v7traps.o bcopy.o \
+	dofloat.o
+	ld -e start -N -o v7run compat.o v7run.o v7start.o v7traps.o \
 	unixemts.o rdosig.o dofloat.o /lib/crt0.o -lc -s
 
 v6run:	compat.o v6run.o v6start.o v6traps.o unixemts.o rdosig.o \
-	bcopy.o dofloat.o
+	dofloat.o
 	ld -e start -N -o v6run compat.o v6run.o v6start.o v6traps.o\
-	unixemts.o rdosig.o dofloat.o bcopy.o /lib/crt0.o -lc
+	unixemts.o rdosig.o dofloat.o /lib/crt0.o -lc
 
 v7trc:	compat.o v7run.o v7start.o v7ttraps.o unixemts.o tdosig.o dofloat.o
 	ld -e start -N -o v7trc compat.o v7run.o v7start.o v7ttraps.o\

@@ -6,6 +6,7 @@
 
 #include	"io.h"
 #include	<setjmp.h>
+#include <string.h>
 
 EXTERN int ifd;
 
@@ -41,7 +42,6 @@ extern void *memcpy(void*, const void*, int);
 extern void *memmove(void*, const void*, int);
 #endif
 extern void *memchr(void*, int, int);
-extern char *memset(void*, int, int);
 extern int memcmp(void*, void*, int);
 extern int strlen(char *);
 extern int strcmp(char *, char *);

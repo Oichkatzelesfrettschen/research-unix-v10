@@ -24,7 +24,6 @@ OBJ=o/_exit.o o/abort.o o/abs.o o/access.o o/acct.o o/alarm.o\
 	o/labs.o o/lcm.o o/ldexp.o o/linedis.o o/link.o\
 	o/locv.o o/log.o o/lseek.o o/lstat.o o/ltod.o o/ltoi.o o/ltol3.o\
 	o/malloc.o o/max.o o/mcount.o o/memccpy.o o/memchr.o o/memcmp.o\
-	o/memcpy.o o/memset.o o/min.o o/mkdir.o o/mknod.o o/mktemp.o\
 	o/modf.o o/mon.o o/mount.o o/nap.o o/nice.o o/nlist.o\
 	o/onexit.o o/open.o\
 	o/opendir.o o/perror.o o/pipe.o o/popen.o o/pow.o o/pow10.o\
@@ -152,7 +151,6 @@ o/memccpy.o:	gen/memccpy.s
 o/memchr.o:	gen/memchr.s
 o/memcmp.o:	gen/memcmp.s
 o/memcpy.o:	gen/memcpy.s
-o/memset.o:	gen/memset.s
 o/min.o:	gen/min.c
 o/mktemp.o:	gen/mktemp.c
 o/modf.o:	gen/modf.s
