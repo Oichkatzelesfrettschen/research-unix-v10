@@ -80,6 +80,29 @@ Replace the argument with the desired target triple such as
 `vax-unknown-linux-gnu-`.  The script exports `CROSS_COMPILE`, `CC` and
 other variables used by the Makefiles.
 
+Building on x86-64
+------------------
+Compile the kernel natively for x86-64 with:
+
+```sh
+make ARCH=x86_64
+```
+
+This platform is fully supported.  Other architectures are
+experimental and require a cross compiler.  Select a toolchain and
+architecture like so:
+
+```sh
+. tools/cross-env.sh <target-triple-prefix>
+make ARCH=<arch>
+```
+
+After building you can run the regression tests with:
+
+```sh
+make test
+```
+
 Booting in QEMU
 ---------------
 The repository contains source for the VAX version of Research UNIX.
@@ -135,6 +158,17 @@ qemu-system-vax -M microvax2 -drive file=disk.img,if=none,id=hd0 \
 
 Adjust the disk image path and other options to taste.  See the files in
 `v10/sys/boot` for details on the boot code layout.
+
+QEMU for x86-64
+~~~~~~~~~~~~~~~
+Support for booting on x86-64 is under development.  Once an
+x86-64 kernel is built you can start it with:
+
+```sh
+qemu-system-x86_64 -kernel unix -serial mon:stdio
+```
+
+Replace `unix` with the path to your kernel image.
 
 Building with make
 ------------------
