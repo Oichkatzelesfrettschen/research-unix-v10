@@ -2,7 +2,7 @@
 
 SPINLOCK_ALIGNED spinlock_t ipc_lock = SPINLOCK_INITIALIZER;
 
-#ifdef SMP_ENABLED
+#if defined(SMP_ENABLED) && !defined(SPINLOCK_UNIPROCESSOR)
 #ifndef USE_TICKET_LOCK
 void spin_lock(spinlock_t *lock)
 {
