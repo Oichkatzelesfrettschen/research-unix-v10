@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _I386_SVR4_MACHDEP_H_
-#define _I386_SVR4_MACHDEP_H_
+#ifndef _X86_SVR4_MACHDEP_H_
+#define _X86_SVR4_MACHDEP_H_
 
 #include <compat/svr4/svr4_types.h>
 
@@ -38,6 +38,35 @@
  * Machine dependent portions [X86]
  */
 
+#if defined(__x86_64__)
+#define SVR4_X86_RDI     0
+#define SVR4_X86_RSI     1
+#define SVR4_X86_RBP     2
+#define SVR4_X86_RBX     3
+#define SVR4_X86_RDX     4
+#define SVR4_X86_RCX     5
+#define SVR4_X86_RAX     6
+#define SVR4_X86_TRAPNO  7
+#define SVR4_X86_ERR     8
+#define SVR4_X86_RIP     9
+#define SVR4_X86_CS      10
+#define SVR4_X86_RFL     11
+#define SVR4_X86_RSP     12
+#define SVR4_X86_SS      13
+#define SVR4_X86_GS      14
+#define SVR4_X86_FS      15
+#define SVR4_X86_ES      16
+#define SVR4_X86_DS      17
+#define SVR4_X86_R8      18
+#define SVR4_X86_R9      19
+#define SVR4_X86_R10     20
+#define SVR4_X86_R11     21
+#define SVR4_X86_R12     22
+#define SVR4_X86_R13     23
+#define SVR4_X86_R14     24
+#define SVR4_X86_R15     25
+#define SVR4_X86_MAXREG  26
+#else
 #define SVR4_X86_GS      0
 #define SVR4_X86_FS      1
 #define SVR4_X86_ES      2
@@ -58,9 +87,17 @@
 #define SVR4_X86_UESP    17
 #define SVR4_X86_SS      18
 #define SVR4_X86_MAXREG  19
+#endif
 
 
+/*
+ * Define register types based on architecture.
+ */
+#if defined(__x86_64__)
+typedef long svr4_greg_t;
+#else
 typedef int svr4_greg_t;
+#endif
 typedef svr4_greg_t svr4_gregset_t[SVR4_X86_MAXREG];
 
 typedef struct {
@@ -123,4 +160,4 @@ struct svr4_ssd {
 
 void svr4_syscall_intern(struct proc *);
 
-#endif /* !_I386_SVR4_MACHDEP_H_ */
+#endif /* !_X86_SVR4_MACHDEP_H_ */
