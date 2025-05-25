@@ -6,6 +6,9 @@ SPINLOCK_SRC = ../../v10/ipc/spinlock.c
 
 TESTS = c23_hello spinlock_test thread_spinlock_stress \
 	process_spinlock_stress ptrace_concurrency_test spinlock_fairness
+ifeq ($(CAPNP),1)
+TESTS += capnp_client
+endif
 
 all: $(TESTS)
 
@@ -27,6 +30,10 @@ ptrace_concurrency_test: ptrace_concurrency_test.c
 spinlock_fairness: spinlock_fairness.c $(SPINLOCK_SRC)
 	$(CC) $(CFLAGS) -DUSE_TICKET_LOCK $< $(SPINLOCK_SRC) -o $@
 
+capnp_client: capnp_client.c
+	$(CC) $(CFLAGS) -I ../../v10/ipc/capnp capnp_client.c \
+	    -L ../../v10/ipc/capnp -lcapnp -o capnp_client
+
 check: all
 	./c23_test.sh
 	./spinlock_test.sh
@@ -34,6 +41,9 @@ check: all
 	./process_spinlock_stress.sh
 	./ptrace_concurrency_test.sh
 	./spinlock_fairness
+ifeq ($(CAPNP),1)
+	./capnp_example.sh
+endif
 
 clean:
-	rm -f $(TESTS) *.txt
+	rm -f $(TESTS) *.txt msg.bin capnp_out.txt

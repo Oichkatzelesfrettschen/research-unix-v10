@@ -8,3 +8,11 @@ metrics_results.log
 # Ignore binaries produced by the C23 tests
 modern/tests/c23_hello
 modern/tests/output.txt
+# Ignore Cap'n Proto build artifacts
+v10/ipc/capnp/libcapnp.a
+v10/ipc/capnp/capnp.o
+tools/memserver/memserver
+tools/memserver/memserver.o
+modern/tests/capnp_client
+modern/tests/msg.bin
+modern/tests/capnp_out.txt

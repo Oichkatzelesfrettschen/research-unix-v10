@@ -13,10 +13,16 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Option controlling the SMP spinlock implementation
 option(SMP "Enable SMP support" OFF)
+option(CAPNP "Enable Cap'n Proto support" OFF)
 if(SMP)
     add_compile_definitions(SPINLOCK_TICKET SMP_ENABLED)
 else()
     add_compile_definitions(SPINLOCK_UNIPROCESSOR)
+endif()
+
+if(CAPNP)
+    add_library(capnp STATIC ${CMAKE_SOURCE_DIR}/v10/ipc/capnp/capnp.c)
+    target_include_directories(capnp PUBLIC ${CMAKE_SOURCE_DIR}/v10/ipc/capnp)
 endif()
 
 # Include current directory for headers
@@ -47,4 +53,7 @@ add_executable(unix ${SRC_C} ${SRC_S})
 
 # Do not use the standard C library for linking
 target_link_options(unix PRIVATE -nostdlib)
+if(CAPNP)
+    target_link_libraries(unix PRIVATE capnp)
+endif()
 

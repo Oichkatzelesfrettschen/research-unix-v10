@@ -6,6 +6,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 add_compile_options(-Wall -Wextra -Werror)
 add_compile_definitions(_POSIX_C_SOURCE=200809L _GNU_SOURCE)
+option(CAPNP "Enable Cap'n Proto support" OFF)
 
 find_package(Threads REQUIRED)
 
@@ -37,6 +38,12 @@ target_link_libraries(ptrace_concurrency_test PRIVATE Threads::Threads)
 add_executable(spinlock_fairness spinlock_fairness.c ${SPINLOCK_SRC})
 target_compile_definitions(spinlock_fairness PRIVATE SMP_ENABLED USE_TICKET_LOCK)
 target_link_libraries(spinlock_fairness PRIVATE Threads::Threads)
+
+if(CAPNP)
+add_executable(capnp_client capnp_client.c)
+target_include_directories(capnp_client PRIVATE ${CMAKE_SOURCE_DIR}/v10/ipc/capnp)
+target_link_libraries(capnp_client PRIVATE ${CMAKE_SOURCE_DIR}/v10/ipc/capnp/libcapnp.a)
+endif()
 
 add_executable(mqueue_ordering_test mqueue_ordering_test.c)
 target_link_libraries(mqueue_ordering_test PRIVATE Threads::Threads rt)
@@ -72,6 +79,11 @@ add_test(NAME ptrace_concurrency_test
 set_tests_properties(ptrace_concurrency_test PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_test(NAME spinlock_fairness COMMAND $<TARGET_FILE:spinlock_fairness>)
+if(CAPNP)
+add_test(NAME capnp_example
+    COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/capnp_example.sh)
+set_tests_properties(capnp_example PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
 
 add_test(NAME mqueue_ordering_test COMMAND $<TARGET_FILE:mqueue_ordering_test>)
 add_test(NAME mqueue_blocking_test COMMAND $<TARGET_FILE:mqueue_blocking_test>)
