@@ -14,7 +14,30 @@ if [ -z "$1" ]; then
     return 1
 fi
 
-export CROSS_COMPILE="${1}"
+arch="$1"
+
+case "$arch" in
+    x86_64)
+        prefix="x86_64-linux-gnu-"
+        ;;
+    i[3-6]86|x86)
+        prefix="i686-linux-gnu-"
+        ;;
+    armv7|arm)
+        prefix="arm-linux-gnueabi-"
+        ;;
+    aarch64)
+        prefix="aarch64-linux-gnu-"
+        ;;
+    vax)
+        prefix="vax-unknown-linux-gnu-"
+        ;;
+    *)
+        prefix="${arch}-linux-gnu-"
+        ;;
+esac
+
+export CROSS_COMPILE="${prefix}"
 
 if [ $USE_LLVM -eq 1 ]; then
     TRIPLE=${CROSS_COMPILE%-}
