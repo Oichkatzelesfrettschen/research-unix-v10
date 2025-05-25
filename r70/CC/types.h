@@ -4,6 +4,7 @@
 
 #ifndef _TYPES_
 #define	_TYPES_
+#include <stdint.h>
 
 /* major part of a device */
 #define	major(x)	((int)(((unsigned)(x)>>8)&0377))
@@ -14,10 +15,6 @@
 /* make a device number */
 #define	makedev(x,y)	((dev_t)(((x)<<8) | (y)))
 
-typedef	unsigned char	u_char;
-typedef	unsigned short	u_short;
-typedef	unsigned int	u_int;
-typedef	unsigned long	u_long;
 
 typedef	struct	_physadr { int r[1]; } *physadr;
 typedef	long	daddr_t;

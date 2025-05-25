@@ -11,7 +11,7 @@ kernel:
 test: check
 
 check:
-	$(MAKE) -C modern/tests check
+	$(MAKE) -C modern/tests CC=$(CC) check
 
 clean:
 	$(MAKE) -C v10/sys clean

@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-cc -std=c23 -pthread ptrace_concurrency_test.c -o ptrace_concurrency_test
+clang -std=c23 -Wall -Wextra -Werror -pthread ptrace_concurrency_test.c -o ptrace_concurrency_test
 ./ptrace_concurrency_test > ptrace_concurrency_output.txt
 if grep -q "ptrace concurrency test completed" ptrace_concurrency_output.txt; then
     echo "ptrace concurrency test passed"
