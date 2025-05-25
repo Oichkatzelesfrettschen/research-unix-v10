@@ -1,0 +1,4 @@
+path,license
+v10/cmd/sml/lib/twig/README,GPL-2.0
+v10/ncurses/*,BSD-like
+# ... additional entries would go here

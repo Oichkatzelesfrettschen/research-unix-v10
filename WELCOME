@@ -1,0 +1,16 @@
+Research UNIX V10 Licensing Overview
+===================================
+
+This repository aggregates portions of the Tenth Edition Research UNIX
+source tree.  Redistribution terms for much of this code remain tied to
+AT&T Bell Labs' original non‑commercial license.  See `COPYING.pdf` for the
+full text of that notice.
+
+Additional directories contain software released under other well‑known
+open source licenses, including the BSD, MIT and GNU GPL families.  Each
+file retains its own license header where available.  A few components
+may carry different terms; consult `licenses.csv` for per‑file details.
+
+Unless a file explicitly says otherwise, this material is **not** covered
+by the Caldera "Ancient UNIX" license.  Please read the source headers and
+`LICENSE` for further guidance before redistributing any part of V10.
