@@ -71,7 +71,11 @@ Toolchain setup relies on `clang` and `ccache`.  The helper script
 `.codex/setup.sh` installs the necessary Ubuntu packages including
 `clang-tidy`, `llvm-bolt`, and `capnproto-dev`.  It exports `CC` and
 `CXX` as `ccache clang` so the test builds benefit from compiler
-caching and linting through `clang-tidy`.
+caching and linting through `clang-tidy`.  The script runs
+automatically when the repository is opened in a Codex environment and
+should contain every dependency because network access is disabled
+after setup.  It also sets aggressive `CFLAGS` and `CXXFLAGS` enabling
+LTO and Polly optimizations via LLVM.
 
 For background on the mailbox IPC primitives used in the tests, see
 [docs/IPC.md](docs/IPC.md).

@@ -11,14 +11,16 @@ sudo apt-get update -y
 # individually so failures do not stop the script.
 apt_packages=(
   clang lld lldb clang-tools clangd
+  clang-17 lld-17 lldb-17 clang-tools-17 clang-tidy-17 clang-format-17 clangd-17
   build-essential cmake make ninja-build
   autoconf automake libtool pkg-config
   gdb valgrind afl++ bison ccache
   clang-tidy clang-format cppcheck
-  llvm llvm-dev llvm-bolt bolt
+  llvm llvm-dev llvm-bolt bolt mold
   libclang-dev libclang-cpp-dev libclang-common-dev
   libc++-dev libc++abi-dev
   capnproto capnproto-dev
+  z3 libz3-dev
   git curl wget nodejs npm
   python3 python3-pip python3-venv
   lcov
@@ -67,6 +69,9 @@ export CC="ccache clang"
 export CXX="ccache clang++"
 export YACC=bison
 export BISON_PKGDATADIR=$(bison --print-datadir)
+export CFLAGS="-O3 -pipe -flto=thin -fuse-ld=lld -march=native -fno-omit-frame-pointer -g -mllvm -polly -mllvm -polly-vectorizer=polly"
+export CXXFLAGS="$CFLAGS"
+export LDFLAGS="-fuse-ld=lld -Wl,-O2"
 ccache --max-size=1G
 
 # Print versions for debugging purposes
