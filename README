@@ -190,3 +190,10 @@ Continuous integration triggers the verification workflow by calling the
 See the "Booting in QEMU" section above (lines 70‑110) for the
 `lccmkall` cross‑compilation setup script and an example `qemu-system-vax`
 command line.
+
+Documentation
+-------------
+Additional notes live under the `docs/` directory:
+
+* [docs/IPC.md](docs/IPC.md) — mailbox IPC semantics.
+* [docs/exokernel/overview.md](docs/exokernel/overview.md) — exokernel goals.
