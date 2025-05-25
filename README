@@ -160,3 +160,18 @@ Continuous integration triggers the verification workflow by calling the
 See the "Booting in QEMU" section above (lines 70‑110) for the
 `lccmkall` cross‑compilation setup script and an example `qemu-system-vax`
 command line.
+
+Building with CMake
+-------------------
+An experimental CMake build is available in parallel with the historical
+Makefiles.  It defaults to the `clang` compiler and expects the Ninja
+backend.
+
+```sh
+mkdir build && cd build
+cmake -G Ninja ..
+ninja
+```
+
+This will attempt to build the `unix` kernel under `v10/sys` and the
+modern regression tests under `modern/tests`.

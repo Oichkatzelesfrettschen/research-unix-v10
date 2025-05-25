@@ -8,3 +8,4 @@ metrics_results.log
 # Ignore binaries produced by the C23 tests
 modern/tests/c23_hello
 modern/tests/output.txt
+build/
