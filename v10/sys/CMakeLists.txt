@@ -33,6 +33,10 @@ file(GLOB SRC_C
     "inet/*.c"
 )
 
+# ensure scheduler lock support is built
+list(APPEND SRC_C os/sched_lock.c)
+list(REMOVE_DUPLICATES SRC_C)
+
 file(GLOB SRC_S
     "os/*.s"
     "vm/*.s"

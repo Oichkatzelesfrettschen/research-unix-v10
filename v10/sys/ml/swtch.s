@@ -18,6 +18,7 @@
  */
 	.globl	_Setrq		# <<<massaged to jsb by "asm.sed">>>
 _Setrq:
+        calls   $0,_sched_lock_acquire
 	tstl	P_RLINK(r0)		## firewall: p->p_rlink must be 0
 	beql	set1			##
 	pushab	set3			##
@@ -31,6 +32,7 @@ set1:
 	insque	(r0),*4(r2)		# at end of queue
 	bbss	r1,_whichqs,set2	# mark queue non-empty
 set2:
+        calls   $0,_sched_lock_release
 	rsb
 
 set3:	.asciz	"setrq"
@@ -42,6 +44,7 @@ set3:	.asciz	"setrq"
  */
 	.globl	_Remrq		# <<<massaged to jsb by "asm.sed">>>
 _Remrq:
+        calls   $0,_sched_lock_acquire
 	bitl	$SPROCIO,P_FLAG(r0)	# if he's getting PROCIO'd,
 	bneq	rem2a			# we leave him alone
 	movzbl	P_PRI(r0),r1
@@ -55,6 +58,7 @@ rem1:
 	bbss	r1,_whichqs,rem2
 rem2:
 	clrl	P_RLINK(r0)		## for firewall checking
+        calls   $0,_sched_lock_release
 rem2a:
 	rsb
 
@@ -84,7 +88,8 @@ sw1:	ffs	$0,$32,_whichqs,r0	# look for non-empty queue
 	mtpr	$0,$IPL			# must allow interrupts here
 	brw	sw1			# this is an idle loop!
 sw1a:	mtpr	$0x18,$IPL		# lock out all so _whichqs==_qs
-	bbcc	r0,_whichqs,sw1		# proc moved via lbolt interrupt
+        calls   $0,_sched_lock_acquire
+	bbcc	r0,_whichqs,sw1c	# proc moved via lbolt interrupt
 	movaq	_qs[r0],r1
 	remque	*(r1),r2		# r2 = p = highest pri process
 	bvc	sw2			# make sure something was there
@@ -92,7 +97,11 @@ sw1b:	pushab	sw0
 	calls	$1,_panic
 sw2:	beql	sw3
 	insv	$1,r0,$1,_whichqs	# still more procs in this queue
+sw1c:
+        calls   $0,_sched_lock_release
+        brw     sw1
 sw3:
+        calls   $0,_sched_lock_release
 	clrl	_noproc
 	movzbl	P_STAT(r2),r3		## firewalls
 	cmpl	$SRUN,r3		##

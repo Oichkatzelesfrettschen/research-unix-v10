@@ -4,6 +4,8 @@ CFLAGS ?= -O
 CFLAGS += -std=c23 -I ..
 
 SRC_C := $(wildcard *.c)
+# ensure scheduler lock support is built
+SRC_C += sched_lock.c
 SRC_S := $(wildcard *.s)
 OBJ := $(SRC_C:.c=.o) $(SRC_S:.s=.o)
 
