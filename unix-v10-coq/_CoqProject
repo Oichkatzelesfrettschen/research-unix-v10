@@ -1,0 +1,8 @@
+-Q theories UnixV10
+
+theories/Core/LambdaCalc.v
+theories/Core/PiCalc.v
+theories/Core/MuCalc.v
+theories/Core/NuCalc.v
+theories/Migration/FunctorF.v
+theories/Proofs/Preservation.v
