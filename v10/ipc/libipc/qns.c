@@ -3,6 +3,8 @@
 #include <fio.h>
 #include <libc.h>
 #include "ipc.h"
+#include "spinlock.h"
+extern spinlock_t ipc_lock;
 
 extern char *strchr(), *malloc();
 static Qtuple *tuples();
@@ -53,13 +55,15 @@ qset(tuplestr, nameserver)
 			break;
 		if((t = tuples(cp)) == NULL)
 			break;
-		if(!(ps = (Qset *)malloc(sizeof(Qset)))) {
-			if(ps!=NULL)
-				freeQset(ps);
-			errstr = "no more memory";
-			errno = ENOMEM;
-			break;
-		}
+               if(!(ps = (Qset *)malloc(sizeof(Qset)))) {
+                       if(ps!=NULL)
+                               freeQset(ps);
+                       spin_lock(&ipc_lock);
+                       errstr = "no more memory";
+                       spin_unlock(&ipc_lock);
+                       errno = ENOMEM;
+                       break;
+               }
 		ps->this = t;
 		if(last) last->next = ps;
 		else {
@@ -106,11 +110,13 @@ qvalue(types, tuplestr, nameserver)
 
 	vp = Frdline(fd);
 	close(fd);
-	if(vp==NULL){
-		errno = EBUSY;
-		errstr = "malfunction";
-		return NULL;
-	}
+       if(vp==NULL){
+               errno = EBUSY;
+               spin_lock(&ipc_lock);
+               errstr = "malfunction";
+               spin_unlock(&ipc_lock);
+               return NULL;
+       }
 	errno = 0;
 	if(*vp++!='\t')
 		return NULL;
@@ -127,15 +133,17 @@ nscall(nameserver)
 {
 	int fd;
 
-	if(nameserver && *nameserver)
-		fd = ipcopen(nameserver, "");
-	else
-		fd = ipcopen("/cs/ns", "");
-	if(fd<0) {
-		errstr = "can't contact nameserver";
-		errno = EBUSY;
-		return -1;
-	}
+       if(nameserver && *nameserver)
+               fd = ipcopen(nameserver, "");
+       else
+               fd = ipcopen("/cs/ns", "");
+       if(fd<0) {
+               spin_lock(&ipc_lock);
+               errstr = "can't contact nameserver";
+               spin_unlock(&ipc_lock);
+               errno = EBUSY;
+               return -1;
+       }
 	return fd;
 }
 
@@ -148,27 +156,35 @@ nsreply(fd)
 {
 	char *cp;
 
-	Finit(fd, (char *)0);
-	if((cp = Frdline(fd))==NULL) {
-		errstr = "name server gave up";
-		errno = EBUSY;
-		return -1;
-	}
+       Finit(fd, (char *)0);
+       if((cp = Frdline(fd))==NULL) {
+               spin_lock(&ipc_lock);
+               errstr = "name server gave up";
+               spin_unlock(&ipc_lock);
+               errno = EBUSY;
+               return -1;
+       }
 	if(strncmp("OK", cp, 2)==0){
 		/* all's well */
-	} else if(strncmp("BUSY", cp, 4)==0){
-		errstr = "name server busy";
-		errno = EBUSY;
-		return -1;
-	} else if(strncmp("ILL", cp, 3)==0){
-		errstr = "illegal request";
-		errno = EINVAL;
-		return -1;
-	} else {
-		errstr = "unknown response from name server";
-		errno = EBUSY;
-		return -1;
-	}
+       } else if(strncmp("BUSY", cp, 4)==0){
+               spin_lock(&ipc_lock);
+               errstr = "name server busy";
+               spin_unlock(&ipc_lock);
+               errno = EBUSY;
+               return -1;
+       } else if(strncmp("ILL", cp, 3)==0){
+               spin_lock(&ipc_lock);
+               errstr = "illegal request";
+               spin_unlock(&ipc_lock);
+               errno = EINVAL;
+               return -1;
+       } else {
+               spin_lock(&ipc_lock);
+               errstr = "unknown response from name server";
+               spin_unlock(&ipc_lock);
+               errno = EBUSY;
+               return -1;
+       }
 	return 0;
 }
 
@@ -216,12 +232,14 @@ char *buf;
 	setfields(oldfields);
 	return (first);
 err:
-	if(first!=NULL)
-		freeQtuple(first);
-	errstr = "out of memory";
-	errno = ENOMEM;
-	setfields(oldfields);
-	return NULL;
+       if(first!=NULL)
+               freeQtuple(first);
+       spin_lock(&ipc_lock);
+       errstr = "out of memory";
+       spin_unlock(&ipc_lock);
+       errno = ENOMEM;
+       setfields(oldfields);
+       return NULL;
 }
 
 freeQset(sp)

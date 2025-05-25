@@ -2,9 +2,9 @@ INCS=-I. -I../h
 CFLAGS=-g $INCS
 L=libipc.a
 OBJS=$L(ipcopen.o) $L(ipccreat.o) $L(ipcproto.o) $L(pwsearch.o) $L(ipclogin.o)\
-    $L(ipcpath.o) $L(ipcexec.o) $L(ipcbuf.o) $L(qns.o)
+    $L(ipcpath.o) $L(ipcexec.o) $L(ipcbuf.o) $L(qns.o) $L(spinlock.o)
 COBJS=ipcopen.O ipccreat.O ipcproto.O pwsearch.O ipclogin.O ipcpath.O\
-    ipcexec.O ipcbuf.O qns.O
+    ipcexec.O ipcbuf.O qns.O spinlock.O
 NPROC=2
 
 all:V: cyntax $L
