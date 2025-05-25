@@ -6,7 +6,7 @@ SPINLOCK_SRC = ../../v10/ipc/spinlock.c
 
 TESTS = c23_hello spinlock_test thread_spinlock_stress \
         process_spinlock_stress ptrace_concurrency_test spinlock_fairness \
-        exo_ipc_status_test
+        exo_ipc_status_test posix_wrappers_test capability_client
 
 all: $(TESTS)
 
@@ -31,6 +31,15 @@ spinlock_fairness: spinlock_fairness.c $(SPINLOCK_SRC)
 exo_ipc_status_test: exo_ipc_status_test.c $(SPINLOCK_SRC) ../../v10/ipc/libipc/mailbox.c
 	$(CC) $(CFLAGS) $< ../../v10/ipc/libipc/mailbox.c $(SPINLOCK_SRC) -o $@
 
+	posix_wrappers_test: posix_wrappers_test.c
+	$(CC) $(CFLAGS) $< -o $@
+
+	capability_client: capability_client.c ../libcapnp/libcapnp.a
+		$(CC) $(CFLAGS) $< ../libcapnp/libcapnp.a -o $@
+	
+	../libcapnp/libcapnp.a:
+	$(MAKE) -C ../libcapnp CC=$(CC) all
+
 check: all
 	./c23_test.sh
 	./spinlock_test.sh
@@ -40,6 +49,8 @@ check: all
 	./spinlock_fairness
 	./mailbox_timeout_test.sh
 	./exo_ipc_status_test
-
+	./posix_wrappers_test.sh
+	./capability_integration_test.sh
+	
 clean:
 	rm -f $(TESTS) *.txt
