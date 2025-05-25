@@ -9,7 +9,7 @@
 #define ITERATIONS 10000
 
 typedef struct {
-    spinlock_t lock;
+    SPINLOCK_ALIGNED spinlock_t lock;
     int counter;
 } shared_t;
 

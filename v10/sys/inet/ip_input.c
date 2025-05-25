@@ -11,7 +11,7 @@ int	ipqmaxlen = 50;
 struct	ipq	ipq;			/* ip reass. queue */
 
 #ifdef SMP_ENABLED
-spinlock_t ipq_lock = SPINLOCK_INITIALIZER;
+SPINLOCK_ALIGNED spinlock_t ipq_lock = SPINLOCK_INITIALIZER;
 #endif
 u_char	ipcksum = 1;
 struct	block *ip_reass();
