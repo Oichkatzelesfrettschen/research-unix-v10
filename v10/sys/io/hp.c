@@ -11,6 +11,7 @@
 #include "sys/mbaddr.h"
 #include "sys/mbsts.h"
 #include "sys/bad144.h"
+#include "../../ipc/h/spinlock.h"
 #include "sys/diskio.h"
 #include "sys/file.h"
 
@@ -432,9 +433,11 @@ hpstrategy(bp)
 	}
 	bp->b_cylin = (bp->b_blkno + hp->blkoff[part])/st->nspc;
 	s = spl6();
+        spin_lock(&buf_lock);
 	disksort(&hp->actf, &hp->actl, bp);
 	if ((hp->flags & UACTIVE) == 0)
 		hpustart(hp);
+        spin_unlock(&buf_lock);
 	splx(s);
 }
 
@@ -927,6 +930,7 @@ hpwatch()
 	register int s;
 
 	s = spl6();
+        spin_lock(&buf_lock);
 	timeout(hpwatch, (caddr_t)0, 15*HZ);
 	for (hp = &hpdisk[hpcnt-1]; hp >= hpdisk; hp--) {
 		if ((hp->flags & UWOL) == 0 || (reg = hp->addr) == 0)
@@ -946,5 +950,6 @@ hpwatch()
 		hp->flags &=~ (UWAITOL|UWOL);
 		hpustart(hp);
 	}
+        spin_unlock(&buf_lock);
 	splx(s);
 }
