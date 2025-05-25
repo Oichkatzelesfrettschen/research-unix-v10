@@ -4,8 +4,9 @@ set -euo pipefail
 # Avoid interactive prompts during package installation
 export DEBIAN_FRONTEND=noninteractive
 
-# Update package lists
+# Update package lists and upgrade
 sudo apt-get update -y
+sudo apt-get dist-upgrade -y || true
 
 # List of apt packages to install.  Each is installed
 # individually so failures do not stop the script.
@@ -28,9 +29,21 @@ apt_packages=(
 )
 
 for pkg in "${apt_packages[@]}"; do
-  echo "Installing $pkg"
+  echo "Installing $pkg via apt-get"
   if ! sudo apt-get install -y "$pkg"; then
-    echo "Warning: failed to install $pkg" >&2
+    echo "Warning: failed apt install $pkg" >&2
+    echo "Attempting pip install for $pkg"
+    if ! sudo -H python3 -m pip install --no-cache-dir "$pkg"; then
+      echo "Warning: pip install failed for $pkg" >&2
+      echo "Attempting npm install for $pkg"
+      if ! sudo npm install -g "$pkg"; then
+        echo "Warning: npm install failed for $pkg" >&2
+        echo "Attempting manual download for $pkg"
+        if ! curl -L -o "/tmp/${pkg}.tar.gz" "https://example.com/${pkg}.tar.gz"; then
+          echo "Warning: manual download failed for $pkg" >&2
+        fi
+      fi
+    fi
   fi
 done
 
