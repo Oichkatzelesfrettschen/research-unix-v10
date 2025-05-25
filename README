@@ -60,7 +60,7 @@ Testing
 -------
 Run the C23 test suite with:
 
-    make test
+    cmake --build build --target test
 
 The script honors the CC environment variable, defaulting to `cc`.
 
@@ -69,7 +69,7 @@ checks that it runs correctly.
 
 Cross compiling
 ---------------
-Before running `make` with a cross compiler, source the helper script
+Before running CMake with a cross compiler, source the helper script
 and pass it your toolchain prefix:
 
 ```sh
@@ -78,7 +78,7 @@ and pass it your toolchain prefix:
 
 Replace the argument with the desired target triple such as
 `vax-unknown-linux-gnu-`.  The script exports `CROSS_COMPILE`, `CC` and
-other variables used by the Makefiles.
+other variables used by the build system.
 
 Booting in QEMU
 ---------------
@@ -90,27 +90,25 @@ Prerequisites
 ~~~~~~~~~~~~~
 * `qemu-system-vax` from QEMU
 * a VAX cross C compiler (for example GCC or lcc)
-* `make`
+* CMake
 
 Building the kernel and boot loader
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1. Build the kernel using the provided Makefile:
+1. Configure and build the kernel using CMake from the repository root:
 
    ```sh
-   make -C v10/sys
+   cmake -S . -B build && cmake --build build
    ```
 
-   To enable the ticket spinlock implementation run:
+   To enable the ticket spinlock implementation pass `-DSMP=1` when
+   configuring:
 
    ```sh
-   make -C v10/sys SMP=1
+   cmake -S . -B build -DSMP=1 && cmake --build build
    ```
 
-   Cross compilation is possible by setting the compiler:
-
-   ```sh
-   make -C v10/sys CC=<cross-prefix>gcc
-   ```
+   Cross compilation works by exporting the desired compiler before
+   running CMake or by using the `tools/cross-env.sh` helper script.
 
    This populates `v10/sys` with the `unix` kernel image.
 
@@ -136,26 +134,24 @@ qemu-system-vax -M microvax2 -drive file=disk.img,if=none,id=hd0 \
 Adjust the disk image path and other options to taste.  See the files in
 `v10/sys/boot` for details on the boot code layout.
 
-Building with make
-------------------
-The repository provides a simple GNUmakefile. Invoke `make` at the root
-to compile the kernel and a subset of userland programs via the Plan 9
-`mk` scripts.
+Building with CMake
+-------------------
+Configure the project and build everything from the repository root:
 
-    make
+    cmake -S . -B build && cmake --build build
 
 Enable spinlock primitives and symmetric multiprocessing support with:
 
-    make SMP=1
+    cmake -S . -B build -DSMP=1 && cmake --build build
 
 Run the regression tests with:
 
-    make test
+    cmake --build build --target test
 
 Continuous integration triggers the verification workflow by calling the
 `check` target, which simply runs the test suite:
 
-    make check
+    cmake --build build --target check
 
 See the "Booting in QEMU" section above (lines 70‑110) for the
 `lccmkall` cross‑compilation setup script and an example `qemu-system-vax`
