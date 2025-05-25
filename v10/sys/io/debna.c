@@ -4,6 +4,7 @@
  * disallows use of the storage port
  */
 #include "sys/param.h"
+#include <stdint.h>
 #include "sys/biaddr.h"
 #include "sys/conf.h"
 #include "sys/user.h"
@@ -113,17 +114,17 @@ register int unit;
 	if (bn->bvp.d->f[PFREQ].f_size == 0) {	/* somewhat sleazy init flag */
 		bn->bvp.d->f[PFREQ].f_size = BNABSIZE-BVPHSIZE;
 		cp = bnabuf[unit].rbuf;
-		cp = (char *)(((int)cp + 7) & ~07);	/* quad-align */
+		cp = (char *)(((uintptr_t)cp + 7) & ~07);	/* quad-align */
 		for (i = 0; i < BNARBUF; i++, cp += BNABSIZE) {
-			if (((int)cp&PGOFSET) > (((int)cp+sizeof(struct bvpdg))&PGOFSET))
-				cp = (char *)(((int)cp+PGOFSET)&~PGOFSET);
+			if (((uintptr_t)cp&PGOFSET) > (((uintptr_t)cp+sizeof(struct bvpdg))&PGOFSET))
+				cp = (char *)(((uintptr_t)cp+PGOFSET)&~PGOFSET);
 			bnarbuf(bn, (struct dgi *)cp);
 		}
 		cp = bnabuf[unit].xbuf;
-		cp = (char *)(((int)cp + 7) & ~07);	/* quad-align */
+		cp = (char *)(((uintptr_t)cp + 7) & ~07);	/* quad-align */
 		for (i = 0; i < BNAXBUF; i++, cp += BNABSIZE) {
-			if (((int)cp&PGOFSET) > (((int)cp+sizeof(struct bvpdg))&PGOFSET))
-				cp = (char *)(((int)cp+PGOFSET)&~PGOFSET);
+			if (((uintptr_t)cp&PGOFSET) > (((uintptr_t)cp+sizeof(struct bvpdg))&PGOFSET))
+				cp = (char *)(((uintptr_t)cp+PGOFSET)&~PGOFSET);
 			bnaxbuf(bn, (struct dgi *)cp);
 		}
 	}

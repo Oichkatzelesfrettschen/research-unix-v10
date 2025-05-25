@@ -5,6 +5,7 @@
  */
 
 #include "sys/param.h"
+#include <stdint.h>
 #include "sys/stream.h"
 #include "sys/filio.h"
 #include "sys/conf.h"
@@ -34,7 +35,7 @@ register struct queue *q;
 	register struct queue *nq;
 	register ioc;
 
-	if ((int)q->ptr == 0) {		/* the open on push does nothing */
+	if ((uintptr_t)q->ptr == 0) {		/* the open on push does nothing */
 		q->ptr = (caddr_t)1;
 		return(1);
 	}

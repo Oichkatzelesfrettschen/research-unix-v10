@@ -4,6 +4,7 @@
  *	(the latter not severe, as 256 channels are permitted)
  */
 #include "sys/param.h"
+#include <stdint.h>
 #include "sys/stream.h"
 #include "sys/dkio.h"
 #include "sys/ubaddr.h"
@@ -636,7 +637,7 @@ register struct block *bp;
 #define	BOOTOK	020		/* initialization flag */
 
 	register struct device *mp =
-	     (struct device *)ubaddr(&rcureaddr[(int)q->ptr & DV]);
+	     (struct device *)ubaddr(&rcureaddr[(uintptr_t)q->ptr & DV]);
 	register int csr, n;
 
 	switch(bp->type) {
@@ -656,7 +657,7 @@ register struct block *bp;
 		return;
 
 	case M_DATA:
-		if (((int)q->ptr&BOOTOK) == 0) {		/* first write */
+		if (((uintptr_t)q->ptr&BOOTOK) == 0) {		/* first write */
 			if ((mp->csr&STATE) != SBOOT) {
 				printf("cure not ready to load, %o\n", mp->csr);
 				goto err;
@@ -667,7 +668,7 @@ register struct block *bp;
 				printf("cure load err0 %o\n", mp->csr);
 				goto err;
 			}
-			q->ptr = (caddr_t)((int)q->ptr | BOOTOK);
+			q->ptr = (caddr_t)((uintptr_t)q->ptr | BOOTOK);
 		}
 		while (bp->rptr < bp->wptr) {
 			if ((mp->csr&STATE) != SBOOTING) {

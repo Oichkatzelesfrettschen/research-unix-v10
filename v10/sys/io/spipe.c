@@ -2,6 +2,7 @@
  * stream pipe
  */
 #include "sys/param.h"
+#include <stdint.h>
 #include "sys/stream.h"
 #include "sys/conf.h"
 
@@ -54,7 +55,7 @@ register struct queue *q;
 		putctl(oq->next, M_HANGUP);
 		WR(oq)->ptr = NULL;
 	}
-	spipes[minor((int)q->ptr)] = NULL;
+	spipes[minor((uintptr_t)q->ptr)] = NULL;
 }
 
 spsrv(q)

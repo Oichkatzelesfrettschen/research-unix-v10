@@ -2,6 +2,7 @@
  * DR11C for Mergenthaler 202
  */
 #include "sys/param.h"
+#include <stdint.h>
 #include "sys/conf.h"
 #include "sys/stream.h"
 #include "sys/ubaddr.h"
@@ -83,9 +84,9 @@ register struct queue *q;
 mgclose(q)
 register struct queue *q;
 {
-	register struct mg *mp = &mg[((int)q->ptr) >> 1];
+	register struct mg *mp = &mg[((uintptr_t)q->ptr) >> 1];
 
-	if(((int)q->ptr) & 01) {
+	if(((uintptr_t)q->ptr) & 01) {
 		mp->wq = NULL;
 	}
 	else {
@@ -131,7 +132,7 @@ register struct block *bp;
 
 	case M_DATA:
 		putq(q, bp);
-		mgstart(&mg[((int)q->ptr) >> 1]);
+		mgstart(&mg[((uintptr_t)q->ptr) >> 1]);
 		return;
 
 	default:
