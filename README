@@ -112,3 +112,28 @@ qemu-system-vax -M microvax2 -drive file=disk.img,if=none,id=hd0 \
 
 Adjust the disk image path and other options to taste.  See the files in
 `v10/sys/boot` for details on the boot code layout.
+
+Building with make
+------------------
+The repository provides a simple GNUmakefile. Invoke `make` at the root
+to compile the kernel and a subset of userland programs via the Plan 9
+`mk` scripts.
+
+    make
+
+Enable spinlock primitives and symmetric multiprocessing support with:
+
+    make SMP=1
+
+Run the regression tests with:
+
+    make test
+
+Continuous integration triggers the verification workflow by calling the
+`check` target, which simply runs the test suite:
+
+    make check
+
+See the "Booting in QEMU" section above (lines 70‑110) for the
+`lccmkall` cross‑compilation setup script and an example `qemu-system-vax`
+command line.
