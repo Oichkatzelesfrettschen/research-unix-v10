@@ -15,7 +15,7 @@ CFLAGS += -std=c23 $(SPINLOCK) -I. -Wall -Werror
 
 export CROSS_COMPILE ARCH CC CFLAGS SMP
 
-SUBDIRS = os vm md io fs ml inet
+SUBDIRS = os vm md io fs ml inet services
 SRC_C := $(foreach d,$(SUBDIRS),$(wildcard $(d)/*.c))
 SRC_S := $(foreach d,$(SUBDIRS),$(wildcard $(d)/*.s))
 OBJ := $(SRC_C:.c=.o) $(SRC_S:.s=.o)
