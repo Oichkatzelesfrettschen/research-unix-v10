@@ -60,7 +60,7 @@ Testing
 -------
 Run the C23 test suite with:
 
-    make test
+    cmake --build build --target test
 
 The script honors the CC environment variable, defaulting to `cc`.
 
@@ -69,16 +69,36 @@ checks that it runs correctly.
 
 Cross compiling
 ---------------
-Before running `make` with a cross compiler, source the helper script
+
+Before running CMake with a cross compiler, source the helper script
 and pass it your toolchain prefix:
 
 ```sh
-. tools/cross-env.sh i386-linux-gnu-
+. tools/cross-env.sh x86_64
 ```
 
-Replace the argument with the desired target triple such as
-`vax-unknown-linux-gnu-`.  The script exports `CROSS_COMPILE`, `CC` and
-other variables used by the Makefiles.
+Building on x86-64
+------------------
+Compile the kernel natively for x86-64 with:
+
+```sh
+make ARCH=x86_64
+```
+
+This platform is fully supported.  Other architectures are
+experimental and require a cross compiler.  Select a toolchain and
+architecture like so:
+
+```sh
+. tools/cross-env.sh <target-triple-prefix>
+make ARCH=<arch>
+```
+
+After building you can run the regression tests with:
+
+```sh
+make test
+```
 
 Booting in QEMU
 ---------------
@@ -90,27 +110,25 @@ Prerequisites
 ~~~~~~~~~~~~~
 * `qemu-system-vax` from QEMU
 * a VAX cross C compiler (for example GCC or lcc)
-* `make`
+* CMake
 
 Building the kernel and boot loader
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1. Build the kernel using the provided Makefile:
+1. Configure and build the kernel using CMake from the repository root:
 
    ```sh
-   make -C v10/sys
+   cmake -S . -B build && cmake --build build
    ```
 
-   To enable the ticket spinlock implementation run:
+   To enable the ticket spinlock implementation pass `-DSMP=1` when
+   configuring:
 
    ```sh
-   make -C v10/sys SMP=1
+   cmake -S . -B build -DSMP=1 && cmake --build build
    ```
 
-   Cross compilation is possible by setting the compiler:
-
-   ```sh
-   make -C v10/sys CC=<cross-prefix>gcc
-   ```
+   Cross compilation works by exporting the desired compiler before
+   running CMake or by using the `tools/cross-env.sh` helper script.
 
    This populates `v10/sys` with the `unix` kernel image.
 
@@ -136,35 +154,35 @@ qemu-system-vax -M microvax2 -drive file=disk.img,if=none,id=hd0 \
 Adjust the disk image path and other options to taste.  See the files in
 `v10/sys/boot` for details on the boot code layout.
 
-Building with make
-------------------
-The repository provides GNU Makefiles for the kernel and tests.  Invoke
-`make` at the repository root to compile the kernel and run the modern
-test suite.
+QEMU for x86-64
+~~~~~~~~~~~~~~~
+Support for booting on x86-64 is under development.  Once an
+x86-64 kernel is built you can start it with:
 
+```sh
+qemu-system-x86_64 -kernel unix -serial mon:stdio
+```
 
-Cross‑compilation is supported by specifying an architecture and tool
-prefix.  For example, to build for aarch64 using a cross compiler
-installed as `aarch64-linux-gnu-gcc`:
+Replace `unix` with the path to your kernel image.
 
-    make ARCH=aarch64 CROSS_COMPILE=aarch64-linux-gnu-
+Building with CMake
+-------------------
+Configure the project and build everything from the repository root:
 
-The old Plan 9 `mk` scripts remain in the tree for historical reference
-but the GNU Makefiles are now the primary build method.
-
+    cmake -S . -B build && cmake --build build
 
 Enable spinlock primitives and symmetric multiprocessing support with:
 
-    make SMP=1
+    cmake -S . -B build -DSMP=1 && cmake --build build
 
 Run the regression tests with:
 
-    make test
+    cmake --build build --target test
 
 Continuous integration triggers the verification workflow by calling the
 `check` target, which simply runs the test suite:
 
-    make check
+    cmake --build build --target check
 
 See the "Booting in QEMU" section above (lines 70‑110) for the
 `lccmkall` cross‑compilation setup script and an example `qemu-system-vax`
