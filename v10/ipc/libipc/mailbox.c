@@ -1,6 +1,41 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../h/mailbox.h"
+#include <sys/types.h>
+#include <unistd.h>
+
+/*
+ * per-process mailboxes
+ */
+ipc_mailbox proc_mailboxes[NPROC];
+static int mb_initialized;
+
+static void
+init_proc_mailboxes(void)
+{
+    int i;
+
+    if(mb_initialized)
+        return;
+    for(i=0; i<NPROC; i++)
+        mailbox_init(&proc_mailboxes[i].box);
+    mb_initialized = 1;
+}
+
+ipc_mailbox *
+ipc_get_mailbox(pid_t pid)
+{
+    if(pid < 0 || pid >= NPROC)
+        return NULL;
+    init_proc_mailboxes();
+    return &proc_mailboxes[pid];
+}
+
+ipc_mailbox *
+ipc_current_mailbox(void)
+{
+    return ipc_get_mailbox(getpid());
+}
 
 void mailbox_init(mailbox_t *mb)
 {
