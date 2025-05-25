@@ -13,6 +13,7 @@
 #include "sys/text.h"
 #include "sys/vlimit.h"
 #include "sys/file.h"
+#include "sys/sched.h"
 
 /*
  * Initialization code.
@@ -47,7 +48,8 @@ main()
 	extern int szicode;
 	extern int swbufcnt;
 
-	rqinit();
+        rqinit();
+        sched_lock_init();
 	procNPROC = &proc[SYSPIDS];
 	textNTEXT = &text[textcnt];
 	fileNFILE = &file[filecnt];

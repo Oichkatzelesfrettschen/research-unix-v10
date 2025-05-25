@@ -10,6 +10,7 @@
 #include "sys/pte.h"
 #include "sys/cmap.h"
 #include "sys/vm.h"
+#include "sys/sched.h"
 
 struct pte *Swapmap, *Xswapmap, *Xswap2map;
 struct user *swaputl, *xswaputl, *xswap2utl;
@@ -133,10 +134,12 @@ swapout(p, ds, ss)
 
 	cnt.v_swpout++;
 
-	if(runout) {
-		runout = 0;
-		wakeup((caddr_t)&runout);
-	}
+        if(runout) {
+                sched_lock_acquire();
+                runout = 0;
+                wakeup((caddr_t)&runout);
+                sched_lock_release();
+        }
 out:
 	xswaplock &= ~s;
 	if (xswapwant & s) {

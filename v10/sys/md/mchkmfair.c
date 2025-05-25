@@ -8,6 +8,7 @@
 #include "sys/user.h"
 #include "sys/mtpr.h"
 #include "sys/psl.h"
+#include "sys/sched.h"
 #include "sys/qbio.h"
 
 extern char *iospace;
@@ -68,8 +69,10 @@ register struct mc650frame *f;
 		/*
 		 * code stolen from setrun
 		 */
-		runrun++;
-		aston();
+                sched_lock_acquire();
+                runrun++;
+                sched_lock_release();
+                aston();
 		psignal(u.u_procp, SIGBUS);
 		return;
 	}
