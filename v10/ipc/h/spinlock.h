@@ -16,9 +16,11 @@
 #define SPINLOCK_CACHE_LINE_SIZE 64
 #endif
 
+unsigned spinlock_runtime_cache_line_size(void);
+
 static inline unsigned spinlock_cache_line_size(void)
 {
-    return SPINLOCK_CACHE_LINE_SIZE;
+    return spinlock_runtime_cache_line_size();
 }
 
 #ifndef CACHE_LINE_SIZE
