@@ -9,6 +9,11 @@
  */
 	.comm	_noproc,4
 	.comm	_runrun,4
+#ifdef SMP_ENABLED
+	.globl	_sched_lock
+	.globl	_spin_lock
+	.globl	_spin_unlock
+#endif
 	.text
 
 /*
@@ -18,6 +23,10 @@
  */
 	.globl	_Setrq		# <<<massaged to jsb by "asm.sed">>>
 _Setrq:
+#ifdef SMP_ENABLED
+        pushab  _sched_lock
+        calls   $1,_spin_lock
+#endif
 	tstl	P_RLINK(r0)		## firewall: p->p_rlink must be 0
 	beql	set1			##
 	pushab	set3			##
@@ -31,6 +40,10 @@ set1:
 	insque	(r0),*4(r2)		# at end of queue
 	bbss	r1,_whichqs,set2	# mark queue non-empty
 set2:
+#ifdef SMP_ENABLED
+        pushab  _sched_lock
+        calls   $1,_spin_unlock
+#endif
 	rsb
 
 set3:	.asciz	"setrq"
@@ -42,6 +55,10 @@ set3:	.asciz	"setrq"
  */
 	.globl	_Remrq		# <<<massaged to jsb by "asm.sed">>>
 _Remrq:
+#ifdef SMP_ENABLED
+        pushab  _sched_lock
+        calls   $1,_spin_lock
+#endif
 	bitl	$SPROCIO,P_FLAG(r0)	# if he's getting PROCIO'd,
 	bneq	rem2a			# we leave him alone
 	movzbl	P_PRI(r0),r1
@@ -55,6 +72,10 @@ rem1:
 	bbss	r1,_whichqs,rem2
 rem2:
 	clrl	P_RLINK(r0)		## for firewall checking
+#ifdef SMP_ENABLED
+        pushab  _sched_lock
+        calls   $1,_spin_unlock
+#endif
 rem2a:
 	rsb
 

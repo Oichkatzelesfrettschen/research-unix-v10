@@ -32,3 +32,8 @@ extern struct sysent
 	int	(*sy_call)();		/* handler */
 } sysent[];
 #define	MAXSYS	128
+
+#ifdef SMP_ENABLED
+#include "spinlock.h"
+extern spinlock_t sched_lock;
+#endif

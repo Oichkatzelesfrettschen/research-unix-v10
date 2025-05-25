@@ -168,14 +168,26 @@ softclock(pc, ps)
 	 * If idling and processes are waiting to swap in,
 	 * check on them.
 	 */
-	if (noproc && runin) {
-		runin = 0;
-		wakeup((caddr_t)&runin);
-	}
-	if (lbolt % (HZ/10) == 0) {
-		runrun++;
-		aston();
-	}
+       if (noproc && runin) {
+#ifdef SMP_ENABLED
+               spin_lock(&sched_lock);
+#endif
+               runin = 0;
+#ifdef SMP_ENABLED
+               spin_unlock(&sched_lock);
+#endif
+               wakeup((caddr_t)&runin);
+       }
+       if (lbolt % (HZ/10) == 0) {
+#ifdef SMP_ENABLED
+               spin_lock(&sched_lock);
+#endif
+               runrun++;
+#ifdef SMP_ENABLED
+               spin_unlock(&sched_lock);
+#endif
+               aston();
+       }
 
 	/*
 	 * Lightning bolt every second:
@@ -250,10 +262,16 @@ softclock(pc, ps)
 			}
 			splx(s);
 		}
-		if (runin!=0) {
-			runin = 0;
-			wakeup((caddr_t)&runin);
-		}
+               if (runin!=0) {
+#ifdef SMP_ENABLED
+                       spin_lock(&sched_lock);
+#endif
+                       runin = 0;
+#ifdef SMP_ENABLED
+                       spin_unlock(&sched_lock);
+#endif
+                       wakeup((caddr_t)&runin);
+               }
 	}
 	if (noproc)
 		return;

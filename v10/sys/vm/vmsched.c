@@ -201,13 +201,19 @@ loop:
 				/*
 				 * Kick out deadwood.
 				 */
-				(void) spl6();
-				rp->p_flag &= ~SLOAD;
-				if (rp->p_stat == SRUN)
-					remrq(rp);
-				(void) spl0();
-				(void) swapout(rp, rp->p_dsize, rp->p_ssize);
-				goto loop;
+                               (void) spl6();
+#ifdef SMP_ENABLED
+                               spin_lock(&sched_lock);
+#endif
+                               rp->p_flag &= ~SLOAD;
+#ifdef SMP_ENABLED
+                               spin_unlock(&sched_lock);
+#endif
+                               if (rp->p_stat == SRUN)
+                                       remrq(rp);
+                               (void) spl0();
+                               (void) swapout(rp, rp->p_dsize, rp->p_ssize);
+                               goto loop;
 			}
 			continue;
 		}
@@ -217,17 +223,26 @@ loop:
 	 * No one wants in, so nothing to do.
 	 */
 	if (outpri == -20000) {
-		(void) spl6();
-		if (wantin) {
-			wantin = 0;
-			sleep((caddr_t)&lbolt, PSWP);
-		} else {
-			runout++;
-			sleep((caddr_t)&runout, PSWP);
-		}
-		(void) spl0();
-		goto loop;
-	}
+               (void) spl6();
+#ifdef SMP_ENABLED
+               spin_lock(&sched_lock);
+#endif
+               if (wantin) {
+                       wantin = 0;
+#ifdef SMP_ENABLED
+                       spin_unlock(&sched_lock);
+#endif
+                       sleep((caddr_t)&lbolt, PSWP);
+               } else {
+                       runout++;
+#ifdef SMP_ENABLED
+                       spin_unlock(&sched_lock);
+#endif
+                       sleep((caddr_t)&runout, PSWP);
+               }
+               (void) spl0();
+               goto loop;
+       }
 	/*
 	 * Decide how deserving this guy is.  If he is deserving
 	 * we will be willing to work harder to bring him in.
@@ -323,11 +338,17 @@ hardswap:
 	 * we kick the poor luser out.
 	 */
 	if (sleeper || desperate && p || deservin && inpri > maxslp) {
-		(void) spl6();
-		p->p_flag &= ~SLOAD;
-		if (p->p_stat == SRUN)
-			remrq(p);
-		(void) spl0();
+               (void) spl6();
+#ifdef SMP_ENABLED
+               spin_lock(&sched_lock);
+#endif
+               p->p_flag &= ~SLOAD;
+#ifdef SMP_ENABLED
+               spin_unlock(&sched_lock);
+#endif
+               if (p->p_stat == SRUN)
+                       remrq(p);
+               (void) spl0();
 		if (desperate) {
 			/*
 			 * Want to give this space to the rest of
@@ -349,10 +370,16 @@ hardswap:
 	 * Want to swap someone in, but can't
 	 * so wait on runin.
 	 */
-	(void) spl6();
-	runin++;
-	sleep((caddr_t)&runin, PSWP);
-	(void) spl0();
+       (void) spl6();
+#ifdef SMP_ENABLED
+       spin_lock(&sched_lock);
+#endif
+       runin++;
+#ifdef SMP_ENABLED
+       spin_unlock(&sched_lock);
+#endif
+       sleep((caddr_t)&runin, PSWP);
+       (void) spl0();
 	goto loop;
 }
 
@@ -381,12 +408,18 @@ vmmeter()
 		sum.v_swpout += cnt.v_swpout;
 		cnt.v_swpout = 0;
 	}
-	if (avefree < minfree && runout || proc[SWAPPID].p_slptime > maxslp/2) {
-		runout = 0;
-		runin = 0;
-		wakeup((caddr_t)&runin);
-		wakeup((caddr_t)&runout);
-	}
+       if (avefree < minfree && runout || proc[SWAPPID].p_slptime > maxslp/2) {
+#ifdef SMP_ENABLED
+               spin_lock(&sched_lock);
+#endif
+               runout = 0;
+               runin = 0;
+#ifdef SMP_ENABLED
+               spin_unlock(&sched_lock);
+#endif
+               wakeup((caddr_t)&runin);
+               wakeup((caddr_t)&runout);
+       }
 	/*
 	 * jolt the pageout daemon, in case
 	 * there are just-cleaned pages but plenty of memory

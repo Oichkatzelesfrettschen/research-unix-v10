@@ -30,37 +30,60 @@ caddr_t chan;
 	register s;
 
 	rp = u.u_procp;
-	s = spl6();
-	if (chan==0 || rp->p_stat != SRUN || rp->p_rlink)
-		panic("sleep");
-	rp->p_wchan = chan;
-	rp->p_slptime = 0;
-	rp->p_pri = pri;
-	hp = &slpque[HASH(chan)];
-	rp->p_link = *hp;
-	*hp = rp;
-	if(pri > PZERO) {
-		if(rp->p_sig && issig()) {
-			if (rp->p_wchan)
-				unsleep(rp);
-			rp->p_stat = SRUN;
-			(void) spl0();
-			goto psig;
-		}
-		if (rp->p_wchan == 0)
-			goto out;
-		rp->p_stat = SSLEEP;
-		(void) spl0();
-		swtch();
-		if(rp->p_sig && issig())
-			goto psig;
-	} else {
-		rp->p_stat = SSLEEP;
-		(void) spl0();
-		swtch();
-	}
-out:
-	splx(s);
+	                s = spl6();
+#ifdef SMP_ENABLED
+        spin_lock(&sched_lock);
+#endif
+        switch (p->p_stat) {
+        default:
+                panic("setrun");
+
+        case SSTOP:
+        case SSLEEP:
+#ifdef SMP_ENABLED
+                spin_unlock(&sched_lock);
+#endif
+                unsleep(p);             /* e.g. when sending signals */
+#ifdef SMP_ENABLED
+                spin_lock(&sched_lock);
+#endif
+                break;
+
+        case SIDL:
+                break;
+        }
+        p->p_stat = SRUN;
+#ifdef SMP_ENABLED
+        spin_unlock(&sched_lock);
+#endif
+        if (p->p_flag & SLOAD)
+                setrq(p);
+#ifdef SMP_ENABLED
+        spin_lock(&sched_lock);
+#endif
+        if(p->p_pri < curpri) {
+                runrun++;
+                aston();
+        }
+        if ((p->p_flag&SLOAD) == 0) {
+                if(runout != 0) {
+                        runout = 0;
+#ifdef SMP_ENABLED
+                        spin_unlock(&sched_lock);
+#endif
+                        wakeup((caddr_t)&runout);
+#ifdef SMP_ENABLED
+                        spin_lock(&sched_lock);
+#endif
+                }
+                wantin++;
+        }
+#ifdef SMP_ENABLED
+        spin_unlock(&sched_lock);
+#endif
+        splx(s);
+
+
 	return;
 
 	/*
@@ -194,34 +217,58 @@ register struct proc *p;
 {
 	register s;
 
-	s = spl6();
-	switch (p->p_stat) {
-	default:
-		panic("setrun");
+	        s = spl6();
+#ifdef SMP_ENABLED
+        spin_lock(&sched_lock);
+#endif
+        switch (p->p_stat) {
+        default:
+                panic("setrun");
 
-	case SSTOP:
-	case SSLEEP:
-		unsleep(p);		/* e.g. when sending signals */
-		break;
+        case SSTOP:
+        case SSLEEP:
+#ifdef SMP_ENABLED
+                spin_unlock(&sched_lock);
+#endif
+                unsleep(p);             /* e.g. when sending signals */
+#ifdef SMP_ENABLED
+                spin_lock(&sched_lock);
+#endif
+                break;
 
-	case SIDL:
-		break;
-	}
-	p->p_stat = SRUN;
-	if (p->p_flag & SLOAD)
-		setrq(p);
-	splx(s);
-	if(p->p_pri < curpri) {
-		runrun++;
-		aston();
-	}
-	if ((p->p_flag&SLOAD) == 0) {
-		if(runout != 0) {
-			runout = 0;
-			wakeup((caddr_t)&runout);
-		}
-		wantin++;
-	}
+        case SIDL:
+                break;
+        }
+        p->p_stat = SRUN;
+#ifdef SMP_ENABLED
+        spin_unlock(&sched_lock);
+#endif
+        if (p->p_flag & SLOAD)
+                setrq(p);
+#ifdef SMP_ENABLED
+        spin_lock(&sched_lock);
+#endif
+        if(p->p_pri < curpri) {
+                runrun++;
+                aston();
+        }
+        if ((p->p_flag&SLOAD) == 0) {
+                if(runout != 0) {
+                        runout = 0;
+#ifdef SMP_ENABLED
+                        spin_unlock(&sched_lock);
+#endif
+                        wakeup((caddr_t)&runout);
+#ifdef SMP_ENABLED
+                        spin_lock(&sched_lock);
+#endif
+                }
+                wantin++;
+        }
+#ifdef SMP_ENABLED
+        spin_unlock(&sched_lock);
+#endif
+        splx(s);
 }
 
 /*
