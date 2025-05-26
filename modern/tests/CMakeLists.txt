@@ -58,6 +58,7 @@ target_compile_definitions(mailbox_timeout_test PRIVATE SMP_ENABLED)
 target_link_libraries(mailbox_timeout_test PRIVATE posix Threads::Threads)
 
 add_executable(posix_wrappers_test posix_wrappers_test.c)
+target_link_libraries(posix_wrappers_test PRIVATE posix)
 add_executable(capability_client capability_client.c)
 target_link_libraries(capability_client PRIVATE Threads::Threads)
 

@@ -8,6 +8,7 @@
 
 #include	"defs.h"
 #include	<fcntl.h>
+#include "../../modern/compat/posix/pipe.h"
 
 short topfd;
 
@@ -89,7 +90,7 @@ poptemp()
 chkpipe(pv)
 int	*pv;
 {
-	if (pipe(pv) < 0 || pv[INPIPE] < 0 || pv[OTPIPE] < 0)
+	if (posix_pipe(pv) < 0 || pv[INPIPE] < 0 || pv[OTPIPE] < 0)
 		error(piperr);
 }
 
