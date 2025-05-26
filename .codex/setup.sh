@@ -1,5 +1,7 @@
 #!/bin/bash
 set -euo pipefail
+set -x
+exec > >(tee -a /var/log/research-unix-setup.log) 2>&1
 
 # Avoid interactive prompts during package installation
 export DEBIAN_FRONTEND=noninteractive
