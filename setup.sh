@@ -15,9 +15,28 @@ log_error() {
 # Avoid interactive prompts during package installation
 export DEBIAN_FRONTEND=noninteractive
 
-# Update and upgrade system packages
-sudo apt-get update -y
-sudo apt-get dist-upgrade -y || true
+# Update and upgrade system packages with retries to handle transient network
+# issues. The retry_cmd helper runs a command up to 3 times with exponential
+# backoff, logging failures along the way so they can be diagnosed later.
+retry_cmd() {
+  local attempt=0
+  local delay=1
+  until "$@"; do
+    attempt=$((attempt + 1))
+    if [ "$attempt" -ge 3 ]; then
+      log_error "Command failed after $attempt attempts: $*"
+      return 1
+    fi
+    echo "Command failed: $*. Retrying in $delay seconds..." | tee -a "$LOGFILE"
+    sleep "$delay"
+    delay=$((delay * 2))
+  done
+}
+
+echo "Updating package lists" | tee -a "$LOGFILE"
+retry_cmd sudo apt-get update -y || true
+echo "Upgrading packages" | tee -a "$LOGFILE"
+retry_cmd sudo apt-get dist-upgrade -y || true
 
 install_pkg() {
   local pkg="$1"
