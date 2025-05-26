@@ -7,7 +7,7 @@ integration checks.  The simplest way to build and run them is
 make check
 ```
 
-This compiles the test programs in `modern/tests` and executes the full
+This compiles the test programs in `engine/modern/tests` and executes the full
 suite, including the new POSIX wrapper tests.
 
 Some integration tests rely on the capability-based memory server.  Enable

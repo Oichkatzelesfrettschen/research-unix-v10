@@ -3,9 +3,9 @@
 This note outlines the current build system layout and sketches a path toward a modern CMake-based workflow.
 
 ## Current Makefile tree
-- **Root `Makefile`:** dispatches to `v10/sys` for the kernel and `modern/tests` for test programs.
-- **`v10/sys/Makefile`:** compiles the Research UNIX kernel from subdirectories (`os`, `vm`, `md`, `io`, `fs`, `ml`, `inet`).
-- **`modern/tests/Makefile`:** builds a small suite of C23 test programs and stress tests.
+- **Root `Makefile`:** dispatches to `engine/kernel` for the kernel and `engine/modern/tests` for test programs.
+- **`engine/kernel/Makefile`:** compiles the Research UNIX kernel from subdirectories (`os`, `vm`, `md`, `io`, `fs`, `ml`, `inet`).
+- **`engine/modern/tests/Makefile`:** builds a small suite of C23 test programs and stress tests.
 - **Other directories:** the repository contains roughly 150 additional `Makefile`s for utilities, the Jerq environment, and assorted tools. A quick count shows:
 
 ```sh
@@ -21,8 +21,8 @@ These auxiliary files follow no single convention and rely on traditional `make`
 3. Gradually replace existing `Makefile`s with CMake targets while preserving the ability to build legacy components.
 
 ### Milestones
-1. **Convert `modern/tests`:** provide simple CMake examples and verify Ninja builds on Linux.
-2. **Convert `v10/sys`:** model the kernel build with CMake object libraries and custom linker scripts.
+1. **Convert `engine/modern/tests`:** provide simple CMake examples and verify Ninja builds on Linux.
+2. **Convert `engine/kernel`:** model the kernel build with CMake object libraries and custom linker scripts.
 3. **Convert `jerq` and related utilities:** migrate graphics and demo programs.
 4. **Convert remaining directories (`r70`, `tools`, etc.):** replace ad-hoc builds and remove obsolete Makefiles.
 

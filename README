@@ -64,7 +64,7 @@ Run the C23 test suite with:
 
 The script honors the CC environment variable, defaulting to `cc`.
 
-The command compiles a small C23 example under `modern/tests/` and
+The command compiles a small C23 example under `engine/modern/tests/` and
 checks that it runs correctly.
 
 Toolchain setup relies on `clang` and `ccache`.  The helper script
@@ -121,7 +121,7 @@ make test
 Booting in QEMU
 ---------------
 The repository contains source for the VAX version of Research UNIX.
-The files under `v10/sys/` build the kernel while `v10/sys/boot`
+The files under `engine/kernel/` build the kernel while `engine/kernel/boot`
 holds the boot blocks.  Building requires a VAX capable tool chain.
 
 Prerequisites
@@ -148,7 +148,7 @@ Building the kernel and boot loader
    Cross compilation works by exporting the desired compiler before
    running CMake or by using the `tools/cross-env.sh` helper script.
 
-   This populates `v10/sys` with the `unix` kernel image.
+   This populates `engine/kernel` with the `unix` kernel image.
 
 2. Build the MicroVAX boot blocks:
 
@@ -170,7 +170,7 @@ qemu-system-vax -M microvax2 -drive file=disk.img,if=none,id=hd0 \
 ```
 
 Adjust the disk image path and other options to taste.  See the files in
-`v10/sys/boot` for details on the boot code layout.
+`engine/kernel/boot` for details on the boot code layout.
 
 QEMU for x86-64
 ~~~~~~~~~~~~~~~
@@ -208,10 +208,10 @@ command line.
 
 Optional Services Build
 -----------------------
-Pass `-DSERVICES=1` to compile the optional services under `v10/sys/services`.
+Pass `-DSERVICES=1` to compile the optional services under `engine/kernel/services`.
 Additional options control related components:
 
-* `-DBUILD_LIBPOSIX=1` – build `libposix.a` from `v10/sys/libposix`.
+* `-DBUILD_LIBPOSIX=1` – build `libposix.a` from `engine/kernel/libposix`.
 * `-DLINK_SERVICES=1` – link the services library into the `unix` kernel.
 
 For example:
