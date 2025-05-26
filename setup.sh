@@ -1,6 +1,19 @@
 #!/bin/bash
 # Repository-specific setup script with logging and troubleshooting
 set -euxo pipefail
+
+# Detect basic network connectivity. Many Codex environments disable
+# networking after initial setup which can cause package installation
+# failures. If we cannot reach a well known host we skip apt operations
+# and log the issue for later troubleshooting.
+check_network() {
+  if ping -c1 -W1 8.8.8.8 >/dev/null 2>&1; then
+    return 0
+  else
+    log_error "network unreachable; skipping apt operations"
+    return 1
+  fi
+}
 LOGFILE="$(dirname "$0")/setup.log"
 ERROR_LOG="$(dirname "$0")/setup.errors.log"
 # Log to file while still printing to console
@@ -16,13 +29,15 @@ log_error() {
 export DEBIAN_FRONTEND=noninteractive
 
 # Update and upgrade system packages
-sudo apt-get update -y
-sudo apt-get dist-upgrade -y || true
+if check_network; then
+  sudo apt-get update -y
+  sudo apt-get dist-upgrade -y || true
+fi
 
 install_pkg() {
   local pkg="$1"
   echo "Installing $pkg via apt-get"
-  if ! sudo apt-get install -y "$pkg"; then
+  if check_network && ! sudo apt-get install -y "$pkg"; then
     log_error "failed apt install $pkg"
     echo "Attempting pip install for $pkg"
     if ! sudo -H python3 -m pip install --no-cache-dir "$pkg"; then
@@ -59,8 +74,12 @@ for pkg in "${apt_packages[@]}"; do
 done
 
 # Delegate to repository-specific script for additional dependencies
+# The repository-specific setup script performs most of the heavy
+# lifting.  Any issues encountered there will bubble up through the
+# logging mechanism defined above.
 bash "$(dirname "$0")/.codex/setup.sh" "$@"
 
 resolve_issues
 
 echo "Setup script finished. Refer to $LOGFILE for full logs. If $ERROR_LOG exists, address listed issues and re-run." | tee -a "$LOGFILE"
+echo "If package installation failed due to lack of network access, rerun this script once connectivity is available or install packages manually." | tee -a "$LOGFILE"
