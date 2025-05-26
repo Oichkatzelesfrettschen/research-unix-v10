@@ -82,6 +82,15 @@ sample systemd unit is provided at `tools/codex-setup.service` that
 executes `codex -q -a full-auto "doctor setup.sh"` and then runs the
 script before networking becomes available.
 
+To bootstrap the environment manually run:
+
+```sh
+./setup.sh
+```
+
+The command logs to `setup.log` and delegates package installation to
+`.codex/setup.sh`.
+
 For background on the mailbox IPC primitives used in the tests, see
 [docs/IPC.md](docs/IPC.md).
 
