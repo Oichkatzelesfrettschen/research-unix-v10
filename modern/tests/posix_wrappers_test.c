@@ -3,10 +3,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include "../compat/posix/fork.h"
+#include "../compat/posix/pipe.h"
+#include "../compat/posix/wait.h"
+#include "../compat/posix/exec.h"
 
 static int test_pipe(void) {
     int fds[2];
-    if (pipe(fds) != 0) {
+    if (posix_pipe(fds) != 0) {
         perror("pipe");
         return 1;
     }
@@ -26,18 +30,19 @@ static int test_pipe(void) {
 }
 
 static int test_fork_exec(void) {
-    pid_t pid = fork();
+    pid_t pid = posix_fork();
     if (pid < 0) {
         perror("fork");
         return 1;
     }
     if (pid == 0) {
         char *const argv[] = {"/bin/true", NULL};
-        execv("/bin/true", argv);
+        extern char **environ;
+        posix_execve("/bin/true", argv, environ);
         _exit(1);
     }
     int status;
-    if (waitpid(pid, &status, 0) < 0) {
+    if (posix_waitpid(pid, &status, 0) < 0) {
         perror("waitpid");
         return 1;
     }

@@ -7,6 +7,8 @@
  */
 
 #include	"defs.h"
+#include "../../modern/compat/posix/wait.h"
+#include "../../modern/compat/posix/exec.h"
 #include	<errno.h>
 
 #ifdef	CRAY
@@ -214,7 +216,7 @@ register char	*t[];
 	trim(p = curstak());
 	sigchk();
 	
-	execve(p, &t[0], xecenv);
+	posix_execve(p, &t[0], xecenv);
 	switch (errno)
 	{
 	case ENOEXEC:		/* could be a shell script */
@@ -303,7 +305,7 @@ int	i, bckg;
 		{
 			register int	*pw = pwlist;
 
-			p = wait(&w);
+			p = posix_waitpid(-1, &w, 0);
 			if (wasintr)
 			{
 				wasintr = 0;

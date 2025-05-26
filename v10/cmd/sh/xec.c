@@ -12,6 +12,7 @@
 #include	<errno.h>
 #include	"sym.h"
 #include	<sys/types.h>
+#include "../../modern/compat/posix/fork.h"
 #include	<sys/stat.h>
 
 static int	parent;
@@ -429,7 +430,7 @@ int	*pf1, *pf2;
 				 * 2,4,8,16, and 32 seconds and then quits
 				 */
 	
-				while ((parent = fork()) == -1)
+				while ((parent = posix_fork()) == -1)
 				{
 					if ((forkcnt = (forkcnt * 2)) > FORKLIM)	/* 32 */
 					{
