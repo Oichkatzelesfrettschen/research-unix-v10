@@ -1,14 +1,27 @@
 #!/bin/bash
 set -euo pipefail
 set -x
+
+# Some Codex environments block outbound networking after initialization.
+# This helper avoids hanging apt when the network is unavailable.
+check_network() {
+  if ping -c1 -W1 8.8.8.8 >/dev/null 2>&1; then
+    return 0
+  else
+    echo "Warning: network unreachable; skipping apt operations" >&2
+    return 1
+  fi
+}
 exec > >(tee -a /var/log/research-unix-setup.log) 2>&1
 
 # Avoid interactive prompts during package installation
 export DEBIAN_FRONTEND=noninteractive
 
-# Update package lists and upgrade
-sudo apt-get update -y
-sudo apt-get dist-upgrade -y || true
+# Update package lists and upgrade if networking is available
+if check_network; then
+  sudo apt-get update -y
+  sudo apt-get dist-upgrade -y || true
+fi
 
 # List of apt packages to install.  Each is installed
 # individually so failures do not stop the script.
@@ -32,7 +45,7 @@ apt_packages=(
 
 for pkg in "${apt_packages[@]}"; do
   echo "Installing $pkg via apt-get"
-  if ! sudo apt-get install -y "$pkg"; then
+  if check_network && ! sudo apt-get install -y "$pkg"; then
     echo "Warning: failed apt install $pkg" >&2
     echo "Attempting pip install for $pkg"
     if ! sudo -H python3 -m pip install --no-cache-dir "$pkg"; then
@@ -97,3 +110,6 @@ python3 --version || true
 npm --version || true
 
 echo "Setup complete"
+if [ -s /var/log/research-unix-setup.log ]; then
+  echo "Review /var/log/research-unix-setup.log for any warnings." >&2
+fi
