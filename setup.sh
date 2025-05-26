@@ -65,7 +65,15 @@ resolve_issues() {
   if [ -s "$ERROR_LOG" ]; then
     echo "\nIssues were encountered during setup:" | tee -a "$LOGFILE"
     cat "$ERROR_LOG" | tee -a "$LOGFILE"
-    echo "Review the errors above and address them before re-running the script." | tee -a "$LOGFILE"
+    echo "Attempting automatic resolution..." | tee -a "$LOGFILE"
+    while read -r line; do
+      case "$line" in
+        *"failed apt install"*)
+          pkg=${line##* }
+          install_pkg "$pkg" ;;
+      esac
+    done < "$ERROR_LOG"
+    echo "Review the errors above and address them before re-running the script if problems persist." | tee -a "$LOGFILE"
   else
     echo "No issues detected during setup." | tee -a "$LOGFILE"
   fi
