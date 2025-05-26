@@ -20,3 +20,5 @@ jobs:
       - name: Run TLC
         run: |
           java -cp tla2tools.jar tlc2.TLC -deadlock -cleanup verification/TicketLock.tla -config verification/TicketLock.cfg
+          java -cp tla2tools.jar tlc2.TLC -deadlock -cleanup verification/Caps.tla -config verification/Caps.cfg
+          java -cp tla2tools.jar tlc2.TLC -deadlock -cleanup verification/IPC.tla -config verification/IPC.cfg
