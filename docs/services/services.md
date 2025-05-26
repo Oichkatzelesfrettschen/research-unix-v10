@@ -14,7 +14,7 @@ registered handler.
 ## Directory layout
 
 ```
-v10/sys/services/
+engine/kernel/services/
     services.c      dispatcher and registration logic
     services.h      public API
     fs_proxy.c      example filesystem proxy
@@ -22,7 +22,7 @@ v10/sys/services/
 ```
 
 Individual service objects are built into the kernel just like other
-subsystems.  The top-level `v10/sys/Makefile` now includes the new
+subsystems.  The top-level `engine/kernel/Makefile` now includes the new
 `services` subdirectory.
 
 ## Example services
