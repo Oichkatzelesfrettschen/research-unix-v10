@@ -24,3 +24,11 @@ jobs:
           JAVA_TOOL_OPTIONS: "-XX:+UseParallelGC"
         run: |
           java -cp /usr/share/tlaplus/tla2tools.jar tlc2.TLC -deadlock -cleanup -workers 4 verification/TicketLock.tla -config verification/TicketLock.cfg
+      - name: Build and run tests
+        run: |
+          make test | tee test.log
+      - name: Upload test logs
+        uses: actions/upload-artifact@v3
+        with:
+          name: tla-test-logs
+          path: test.log

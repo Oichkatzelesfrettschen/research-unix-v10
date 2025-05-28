@@ -5,6 +5,12 @@ exec > >(tee -a "$LOGFILE") 2>&1
 
 export DEBIAN_FRONTEND=noninteractive
 
+# Detect unreachable proxy settings and clear them
+if ! curl -fsI https://deb.debian.org >/dev/null 2>&1; then
+  echo "Warning: network unreachable or proxy misconfigured, clearing proxy variables" >&2
+  unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+fi
+
 sudo apt-get update -y
 sudo apt-get dist-upgrade -y || true
 
