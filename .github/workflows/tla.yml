@@ -14,11 +14,12 @@ jobs:
         with:
           distribution: temurin
           java-version: '11'
-      - name: Download TLA+ tools
+      - name: Install TLA+ tools
         run: |
-          curl -L -o tla2tools.jar https://github.com/tlaplus/tlaplus/releases/latest/download/tla2tools.jar
+          sudo apt-get update -y
+          sudo apt-get install -y tlaplus default-jre
       - name: Run TLC
         env:
           JAVA_TOOL_OPTIONS: "-XX:+UseParallelGC"
         run: |
-          java -cp tla2tools.jar tlc2.TLC -deadlock -cleanup -workers 4 verification/TicketLock.tla -config verification/TicketLock.cfg
+          java -cp /usr/share/tlaplus/tla2tools.jar tlc2.TLC -deadlock -cleanup -workers 4 verification/TicketLock.tla -config verification/TicketLock.cfg
