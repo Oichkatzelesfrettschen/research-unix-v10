@@ -24,6 +24,7 @@ apt_packages=(
   python3 python3-pip python3-venv
   lcov
   agda agda-stdlib coq coqide isabelle tlaplus
+  default-jdk default-jre openjdk-11-jdk openjdk-11-jre-headless
 )
 
 for pkg in "${apt_packages[@]}"; do
@@ -77,6 +78,9 @@ export BISON_PKGDATADIR=$(bison --print-datadir)
 export CFLAGS="-O3 -pipe -flto=thin -fuse-ld=lld -march=native -fno-omit-frame-pointer -g -mllvm -polly -mllvm -polly-vectorizer=polly"
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-fuse-ld=lld -Wl,-O2"
+export TLA_HOME="/usr/share/tlaplus"
+export TLA_TOOLS_JAR="$TLA_HOME/tla2tools.jar"
+export PATH="$PATH:$TLA_HOME:$TLA_HOME/bin"
 ccache --max-size=1G
 
 clang --version || true
