@@ -23,7 +23,8 @@ apt_packages=(
   git curl wget nodejs npm
   python3 python3-pip python3-venv
   lcov
-  agda agda-stdlib coq coqide isabelle tlaplus
+  agda agda-stdlib coq coqide \
+  isabelle isabelle-doc isabelle-dev isabelle2023 tlaplus
   default-jdk default-jre openjdk-11-jdk openjdk-11-jre-headless
 )
 
@@ -81,6 +82,13 @@ export LDFLAGS="-fuse-ld=lld -Wl,-O2"
 export TLA_HOME="/usr/share/tlaplus"
 export TLA_TOOLS_JAR="$TLA_HOME/tla2tools.jar"
 export PATH="$PATH:$TLA_HOME:$TLA_HOME/bin"
+export ISABELLE_HOME="/usr/lib/isabelle"
+export PATH="$PATH:$ISABELLE_HOME/bin"
+if command -v isabelle >/dev/null 2>&1; then
+  isabelle components -I || true
+  isabelle components -a || true
+  isabelle build -b HOL || true
+fi
 ccache --max-size=1G
 
 clang --version || true
@@ -88,5 +96,9 @@ lld --version || true
 ccache --version || true
 python3 --version || true
 npm --version || true
+agda --version || true
+coqc --version || true
+isabelle version || true
+tlapm --help >/dev/null 2>&1 && tlapm --version || true
 
 echo "Setup complete"
