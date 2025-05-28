@@ -3,10 +3,15 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/mman.h>
+
+#include "../compat/posix/fork.h"
+#include "../compat/posix/pipe.h"
+#include "../compat/posix/mmap.h"
 
 static int test_pipe(void) {
     int fds[2];
-    if (pipe(fds) != 0) {
+    if (posix_pipe(fds) != 0) {
         perror("pipe");
         return 1;
     }
@@ -26,7 +31,7 @@ static int test_pipe(void) {
 }
 
 static int test_fork_exec(void) {
-    pid_t pid = fork();
+    pid_t pid = posix_fork();
     if (pid < 0) {
         perror("fork");
         return 1;
@@ -46,11 +51,35 @@ static int test_fork_exec(void) {
     return 0;
 }
 
+static int test_mmap(void) {
+    size_t page = 4096;
+    void *p = posix_mmap(NULL, page, PROT_READ | PROT_WRITE,
+                         MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (p == MAP_FAILED) {
+        perror("mmap");
+        return 1;
+    }
+    memset(p, 0xA5, page);
+    if (posix_msync(p, page, MS_SYNC) != 0) {
+        perror("msync");
+        munmap(p, page);
+        return 1;
+    }
+    if (munmap(p, page) != 0) {
+        perror("munmap");
+        return 1;
+    }
+    return 0;
+}
+
 int main(void) {
     if (test_pipe() != 0)
         return 1;
     if (test_fork_exec() != 0)
         return 1;
+    if (test_mmap() != 0)
+        return 1;
     printf("posix wrapper tests passed\n");
     return 0;
 }
+

@@ -94,6 +94,10 @@ directly.
 For background on the mailbox IPC primitives used in the tests, see
 [docs/IPC.md](docs/IPC.md).
 
+The POSIX compatibility layer also provides wrappers for common system calls.
+Besides `posix_fork()` and `posix_pipe()`, it now includes memory mapping
+helpers `posix_mmap()` and `posix_msync()` used throughout the C23 tests.
+
 Cross compiling
 ---------------
 
