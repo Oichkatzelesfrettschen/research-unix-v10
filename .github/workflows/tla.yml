@@ -14,10 +14,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '11'
-      - name: Install TLA+ tools
+      - name: Set up environment
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y tlaplus default-jre
+          sudo apt-get install -y curl
+          ./setup.sh
       - name: Run TLC
         env:
           JAVA_TOOL_OPTIONS: "-XX:+UseParallelGC"
