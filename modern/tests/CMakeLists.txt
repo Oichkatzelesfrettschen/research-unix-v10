@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
-set(CMAKE_C_COMPILER clang)
+if(NOT CMAKE_C_COMPILER)
+    set(CMAKE_C_COMPILER clang)
+endif()
 project(modern_tests C)
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
