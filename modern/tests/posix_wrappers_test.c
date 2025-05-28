@@ -8,6 +8,8 @@
 #include "../compat/posix/fork.h"
 #include "../compat/posix/pipe.h"
 #include "../compat/posix/mmap.h"
+#include "../compat/posix/exec.h"
+#include "../compat/posix/wait.h"
 
 static int test_pipe(void) {
     int fds[2];
@@ -37,12 +39,13 @@ static int test_fork_exec(void) {
         return 1;
     }
     if (pid == 0) {
+        extern char **environ;
         char *const argv[] = {"/bin/true", NULL};
-        execv("/bin/true", argv);
+        posix_execve("/bin/true", argv, environ);
         _exit(1);
     }
     int status;
-    if (waitpid(pid, &status, 0) < 0) {
+    if (posix_waitpid(pid, &status, 0) < 0) {
         perror("waitpid");
         return 1;
     }
