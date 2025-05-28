@@ -18,5 +18,7 @@ jobs:
         run: |
           curl -L -o tla2tools.jar https://github.com/tlaplus/tlaplus/releases/latest/download/tla2tools.jar
       - name: Run TLC
+        env:
+          JAVA_TOOL_OPTIONS: "-XX:+UseParallelGC"
         run: |
-          java -cp tla2tools.jar tlc2.TLC -deadlock -cleanup verification/TicketLock.tla -config verification/TicketLock.cfg
+          java -cp tla2tools.jar tlc2.TLC -deadlock -cleanup -workers 4 verification/TicketLock.tla -config verification/TicketLock.cfg
