@@ -19,6 +19,14 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y curl
           ./setup.sh
+      - name: Build and run tests
+        run: |
+          make test | tee test.log
+      - name: Upload test logs
+        uses: actions/upload-artifact@v3
+        with:
+          name: proofs-test-logs
+          path: test.log
       - name: Run TLA+ model check
         env:
           JAVA_TOOL_OPTIONS: "-XX:+UseParallelGC"
