@@ -91,6 +91,12 @@ To bootstrap the environment manually run:
 The command logs to `setup.log` and installs all dependencies
 directly.
 
+The script now automatically enumerates every available package related
+to TLA+, Agda and Coq using the package manager indices.  It installs
+each discovered tool and library so that formal verification utilities
+work offline.  Continuous integration also executes `setup.sh` to
+replicate the same environment before running checks.
+
 For background on the mailbox IPC primitives used in the tests, see
 [docs/IPC.md](docs/IPC.md).
 

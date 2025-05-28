@@ -27,6 +27,17 @@ apt_packages=(
   default-jdk default-jre openjdk-11-jdk openjdk-11-jre-headless
 )
 
+# Discover all packages related to TLA+, Agda and Coq after the index is updated
+extra_prefixes=(coq agda tlaplus tla)
+for prefix in "${extra_prefixes[@]}"; do
+  echo "Searching for packages matching $prefix"
+  mapfile -t found < <(apt-cache search --names-only "^${prefix}" | awk '{print $1}')
+  apt_packages+=("${found[@]}")
+done
+
+# Remove duplicates while preserving ordering
+mapfile -t apt_packages < <(printf '%s\n' "${apt_packages[@]}" | awk '!seen[$0]++')
+
 for pkg in "${apt_packages[@]}"; do
   echo "Installing $pkg via apt-get"
   if ! sudo apt-get install -y "$pkg"; then
@@ -57,11 +68,35 @@ for pkg in "${pip_packages[@]}"; do
   fi
 done
 
+# Search PyPI for packages related to TLA+, Agda and Coq and install them
+pip_keywords=(agda coq tlaplus tla)
+for kw in "${pip_keywords[@]}"; do
+  echo "Searching PyPI for $kw packages"
+  if results=$(python3 -m pip search "$kw" 2>/dev/null | awk '{print $1}'); then
+    for pkg in $results; do
+      echo "Pip installing $pkg"
+      sudo -H python3 -m pip install --no-cache-dir "$pkg" || true
+    done
+  fi
+done
+
 npm_packages=(eslint)
 for pkg in "${npm_packages[@]}"; do
   echo "NPM installing $pkg"
   if ! sudo npm install -g "$pkg"; then
     echo "Warning: failed to install $pkg" >&2
+  fi
+done
+
+# Search npm for packages related to TLA+, Agda and Coq
+npm_keywords=(agda coq tlaplus tla)
+for kw in "${npm_keywords[@]}"; do
+  echo "Searching npm for $kw packages"
+  if results=$(npm search "$kw" --parseable 2>/dev/null | cut -d: -f2 | awk -F'\t' '{print $1}'); then
+    for pkg in $results; do
+      echo "NPM installing $pkg"
+      sudo npm install -g "$pkg" || true
+    done
   fi
 done
 
