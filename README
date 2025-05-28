@@ -233,3 +233,28 @@ For example:
 cmake -S . -B build -DSERVICES=1 -DBUILD_LIBPOSIX=1 -DLINK_SERVICES=1
 cmake --build build
 ```
+
+Formal Verification
+-------------------
+The repository includes lightweight proof artifacts in several languages.
+`setup.sh` configures the toolchains for TLA\+, Coq, Agda and Isabelle/HOL by
+exporting environment variables like `TLA_HOME`, `COQBIN`, `AGDA_BIN` and
+`ISABELLE_HOME`. Continuous integration runs a workflow that checks the
+specifications under `verification/`:
+
+```
+.github/workflows/proofs.yml
+```
+
+The job executes TLC on the TicketLock spec, builds the Coq framework,
+verifies a small Agda module and compiles an Isabelle theory. Invoke the
+workflow locally with:
+
+```sh
+./setup.sh
+java -cp "$TLA_TOOLS_JAR" tlc2.TLC verification/TicketLock.tla \
+  -config verification/TicketLock.cfg
+make -C unix-v10-coq
+agda verification/agda/HelloWorld.agda
+isabelle build -D verification/isabelle
+```

@@ -1,0 +1,35 @@
+name: FormalProofs
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '11'
+      - name: Install dependencies and configure environment
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y curl
+          ./setup.sh
+      - name: Run TLA+ model check
+        env:
+          JAVA_TOOL_OPTIONS: "-XX:+UseParallelGC"
+        run: |
+          java -cp /usr/share/tlaplus/tla2tools.jar tlc2.TLC -deadlock -cleanup -workers 4 verification/TicketLock.tla -config verification/TicketLock.cfg
+      - name: Build Coq proofs
+        run: |
+          make -C unix-v10-coq
+      - name: Check Agda file
+        run: |
+          agda verification/agda/HelloWorld.agda
+      - name: Build Isabelle theory
+        run: |
+          isabelle build -D verification/isabelle

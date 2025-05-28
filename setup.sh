@@ -83,7 +83,14 @@ export TLA_HOME="/usr/share/tlaplus"
 export TLA_TOOLS_JAR="$TLA_HOME/tla2tools.jar"
 export PATH="$PATH:$TLA_HOME:$TLA_HOME/bin"
 export ISABELLE_HOME="/usr/lib/isabelle"
+export ISABELLE_HOME_USER="$HOME/.isabelle"
 export PATH="$PATH:$ISABELLE_HOME/bin"
+export COQBIN="$(dirname $(command -v coqc || echo /usr/bin))"
+export COQLIB="$(coqtop -where 2>/dev/null || echo /usr/lib/coq)"
+export PATH="$PATH:$COQBIN"
+export AGDA_BIN="$(dirname $(command -v agda || echo /usr/bin))"
+export AGDA_DIR="$(agda-mode locate 2>/dev/null || echo $HOME/.agda)"
+export PATH="$PATH:$AGDA_BIN"
 if command -v isabelle >/dev/null 2>&1; then
   isabelle components -I || true
   isabelle components -a || true
