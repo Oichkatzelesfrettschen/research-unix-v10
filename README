@@ -67,20 +67,20 @@ The script honors the CC environment variable, defaulting to `cc`.
 The command compiles a small C23 example under `engine/modern/tests/` and
 checks that it runs correctly.
 
-Toolchain setup relies on `clang` and `ccache`.  The helper script
-`.codex/setup.sh` installs the necessary Ubuntu packages including
-`clang-tidy`, `llvm-bolt`, and `capnproto-dev`.  It exports `CC` and
-`CXX` as `ccache clang` so the test builds benefit from compiler
-caching and linting through `clang-tidy`.  The script runs
-automatically when the repository is opened in a Codex environment and
-should contain every dependency because network access is disabled
-after setup.  It also sets aggressive `CFLAGS` and `CXXFLAGS` enabling
-LTO and Polly optimizations via LLVM.
+Toolchain setup relies on `clang` and `ccache`.  The `setup.sh` script
+installs the necessary Ubuntu packages including `clang-tidy`,
+`llvm-bolt`, and `capnproto-dev`.  It exports `CC` and `CXX` as
+`ccache clang` so the test builds benefit from compiler caching and
+linting through `clang-tidy`.  The script runs automatically when the
+repository is opened in a Codex environment and should contain every
+dependency because network access is disabled after setup.  It also
+sets aggressive `CFLAGS` and `CXXFLAGS` enabling LTO and Polly
+optimizations via LLVM.
 
-Codex keeps `setup.sh` synced using the rules in `.codex/AGENTS.md`. A
-sample systemd unit is provided at `tools/codex-setup.service` that
-executes `codex -q -a full-auto "doctor setup.sh"` and then runs the
-script before networking becomes available.
+Codex keeps `setup.sh` synced automatically.  A sample systemd unit is
+provided at `tools/codex-setup.service` that executes `codex -q -a
+full-auto "doctor setup.sh"` and then runs the script before
+networking becomes available.
 
 To bootstrap the environment manually run:
 
@@ -88,8 +88,8 @@ To bootstrap the environment manually run:
 ./setup.sh
 ```
 
-The command logs to `setup.log` and delegates package installation to
-`.codex/setup.sh`.
+The command logs to `setup.log` and installs all dependencies
+directly.
 
 For background on the mailbox IPC primitives used in the tests, see
 [docs/IPC.md](docs/IPC.md).
