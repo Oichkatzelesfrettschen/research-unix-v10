@@ -7,6 +7,7 @@
  */
 #define	BNACHAN	8
 
+/** Driver state per channel. */
 struct bnachan {
 	short proto;	/* our protocol */
 	char needst;	/* channel needs stptdb */
@@ -14,10 +15,7 @@ struct bnachan {
 	char unit;	/* which controller is ours */
 	struct queue *rq;
 };
-
-/*
- * one bnactl per controller
- */
+/** Controller-level structure. */
 struct bnactl {
 	struct bvp bvp;		/* general port stuff */
 	struct dgi *xfree;	/* free xmit buffers */
@@ -45,6 +43,7 @@ struct bnactl {
 #define	BNAXBUF	8
 #define	BNARBUF	8
 
+/** Shared transmit and receive buffers. */
 struct bnabuf {
 	char rbuf[BNARBUF*BNABSIZE + BNASLOP];
 	char xbuf[BNAXBUF*BNABSIZE + BNASLOP];

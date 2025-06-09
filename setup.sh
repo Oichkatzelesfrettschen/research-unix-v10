@@ -29,6 +29,7 @@ apt_packages=(
   git curl wget nodejs npm
   python3 python3-pip python3-venv
   lcov
+  doxygen doxygen-doc doxygen-latex graphviz python3-sphinx tree ed
   agda agda-stdlib coq coqide \
   isabelle isabelle-doc isabelle-dev isabelle2023 tlaplus
   default-jdk default-jre openjdk-11-jdk openjdk-11-jre-headless

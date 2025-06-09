@@ -133,6 +133,7 @@ setupclock()
 #define	MAXNBIG	10
 int	nbig = NBIG;
 
+/** Priority-sorted process entry. */
 struct bigp {
 	struct	proc *bp_proc;
 	int	bp_pri;

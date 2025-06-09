@@ -4,7 +4,7 @@
  * exponent, 13 bit fraction ``floating point'' number.
  */
 typedef	u_short comp_t;
-
+/** Per-process accounting information. */
 struct	acct
 {
 	char	ac_comm[10];		/* Accounting command name */

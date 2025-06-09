@@ -9,6 +9,7 @@
 #define	BDACMD	32	/* no more than this many command packets */
 #define	BDANMAP	20	/* number of chunks of map */
 
+/** Controller descriptor. */
 struct bd {
 	struct biic *bd_addr;		/* device register address */
 	short	bd_flags;		/* misc flag bits */

@@ -32,8 +32,8 @@ typedef struct Conversation	Conversation;
 typedef struct Interface	Interface;
 typedef struct Etherhdr		Etherhdr;
 
-/*
- *  generic nonet header
+/**
+ * @brief Generic Nonet header.
  */
 struct Hdr {
 	uchar	circuit[3];	/* circuit number */
@@ -48,8 +48,8 @@ struct Hdr {
 #define HANGUP 0x2		/* flag bit requesting hangup */
 #define ACKME 0x4		/* acknowledge this message */
 
-/*
- *  a buffer describing a nonet message
+/**
+ * @brief Buffer descriptor for a Nonet message.
  */
 struct Msg {
 	QLock;
@@ -73,8 +73,8 @@ enum {
 	Cclosing,
 };
 
-/*
- *  one exists for each Nonet conversation.
+/**
+ * @brief One per Nonet conversation.
  */
 struct Conversation {
 	QLock;
@@ -111,9 +111,8 @@ struct Conversation {
 	int	rcvd;
 };
 
-/*
- *  a nonet interface.  one exists for every stream that a 
- *  nonet multiplexor is pushed onto.
+/**
+ * @brief Nonet interface used for multiplexed streams.
  */
 struct Interface {
 	QLock;
@@ -1135,8 +1134,8 @@ freeifc(Interface *ifc)
 /*
  *  ethernet specific multiplexor
  */
-/*
- *  ethernet header of a packet
+/**
+ * @brief Ethernet header used by the driver.
  */
 struct Etherhdr {
 	uchar	d[6];

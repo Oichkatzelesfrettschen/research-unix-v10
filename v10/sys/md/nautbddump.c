@@ -49,6 +49,7 @@ struct device {
 
 #define	BDACSIZE 50		/* size of a command packet, says KDB50 */
 
+/** Dump command descriptor. */
 struct bdcmd {
 	short	uc_len;		/* length of message */
 	char	uc_tc;		/* type, credits */
@@ -56,6 +57,7 @@ struct bdcmd {
 	struct mscmd uc_p;
 	char junk[BDACSIZE-sizeof(struct mscmd)];
 };
+/** Dump response descriptor. */
 
 struct bdrsp {
 	short	ur_len;		/* length of message */
@@ -64,6 +66,7 @@ struct bdrsp {
 	struct msend ur_p;
 };
 
+/** State for single-disk dump. */
 static struct bdx {
 	short	ud__r0;		/* reserved (ugh) */
 	char	ud__r1;

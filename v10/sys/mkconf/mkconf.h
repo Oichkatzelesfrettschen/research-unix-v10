@@ -51,6 +51,7 @@ extern Mdev *mlist;
 #define	AMSCP	8	/* MSCP device */
 #define	ANOBUS	9	/* device adapter attached to no bus */
 
+/** Callback hooks for configuration parsing. */
 struct acode {
 	int (*syntax)();	/* check Dev when conf file is read */
 	int (*fixup)();		/* fix entry before printing address */

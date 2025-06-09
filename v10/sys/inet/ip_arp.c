@@ -22,7 +22,7 @@
  * Hash table for arp entries.  Collision resolution is linear search until
  * encountering a hole.  Replacement is LRU.
  */
-/* #define NARP 128			/* number of arp entries */
+/* #define NARP 128 */	/* number of arp entries */
 extern int arpcnt;			/* number of arp entries */
 extern struct ip_arp ip_arps[];		/* arping table */
 #define HASH(x) ((x)%arpcnt)

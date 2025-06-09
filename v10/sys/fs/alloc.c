@@ -39,7 +39,7 @@ daddr_t prev;
 	else
 		bno = oldfsalloc(fp, fip->i_dev);
 	if (bno == 0) {
-		/*fp->s_nfree = 0;	/* but it would be wrong FIX*/
+		/* fp->s_nfree = 0; */ /* but it would be wrong FIX */
 		fp->s_tfree = 0;
 		fserr(fip->i_dev, fp, "file system full");
 		tsleep((caddr_t)&u, PRIBIO, 5);	/* slow things down */

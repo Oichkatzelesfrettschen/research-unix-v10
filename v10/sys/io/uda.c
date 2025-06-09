@@ -21,7 +21,7 @@
  * two drives on the same data path, which confuses the
  * DW780 and mixes up the data
  */
-/* #define	ONEPATH	1	/* don't */
+/* #define ONEPATH 1 */	/* don't */
 
 #define	hiword(x)	(((long)(x)>>16)&0177777)
 #define	loword(x)	((long)(x)&0177777)

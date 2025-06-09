@@ -550,7 +550,7 @@ struct inode *dip;
 	tonetchar(pp, SNB_CMD, NBNAMI);
 	tonetlong(pp, SNB_TAG, NBROOTTAG);	/* lookup in the root */
 	tonetlong(pp, SNB_LEN, SNMSIZE+1);	/* one char of filename */
-	/* tonetchar(pp, SNMSIZE, 0);		/* "" */
+        /* tonetchar(pp, SNMSIZE, 0); */       /* "" */
 	tonetchar(pp, SNB_FLAGS, NI_SEARCH);
 	nbsend(&pi, pp, rbuf, sizeof(rbuf));
 	if (u.u_error) {

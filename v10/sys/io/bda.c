@@ -99,6 +99,7 @@ struct device {
 #define	NCMD	(1<<NCP2)
 #define	NRSP	(1<<NRP2)
 
+/** Shared memory command ring. */
 struct bdcomm {
 	short	bd__r0;		/* reserved (ugh) */
 	char	bd__r1;
@@ -122,6 +123,7 @@ struct bdcomm {
 #define	CSIZE	60	/* max size of command packet */
 #define	RSIZE	60	/* max size of response packet */
 #define	HDRSIZE	4	/* size of the header */
+/** Command packet transmitted to device. */
 
 struct bdcmd {
 	short	uc_len;		/* length of message */
@@ -130,6 +132,7 @@ struct bdcmd {
 	char	uc_data[CSIZE];
 };
 
+/** Response packet from device. */
 struct bdrsp {
 	short	ur_len;		/* length of message */
 	char	ur_tc;		/* type, credits */
