@@ -3,6 +3,7 @@
  * used by all VAXBI nodes
  */
 
+/** Device interface registers shared on VAXBI. */
 struct biic {
 	long bitype;	/* device type */
 	long bicsr;

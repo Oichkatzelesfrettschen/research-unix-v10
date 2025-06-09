@@ -45,6 +45,7 @@ struct	qinit {
 /*
  * Queue data block
  */
+/** Data buffer for Stream I/O. */
 struct	block {
 	struct	block	*next;		/* next in chain */
 	u_char	*rptr;			/* first unconsumed data */

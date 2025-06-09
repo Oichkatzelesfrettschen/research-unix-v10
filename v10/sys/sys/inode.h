@@ -106,6 +106,7 @@ struct	inode *openi();
 #define		ISYNC	0001000	/* 1 writer and n readers (synchronized access) */
 #define		IEXCL	0003000	/* 1 writer or n readers (exclusive access) */
 
+/** Parameters passed to namei. */
 struct argnamei {	/* namei's flag argument */
 	short flag;	/* type of request */
 	short len;	/* length of last component buffer */

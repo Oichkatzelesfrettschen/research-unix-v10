@@ -28,10 +28,12 @@
 /*
  * known to be 512 bytes long
  */
+/** Bad sector table. */
 struct bad144 {
 	long	bt_csn;				/* cartridge serial number */
 	unsigned short	bt_mbz;			/* unused; should be 0 */
 	unsigned short	bt_flag;		/* -1 => alignment cartridge */
+        /** Mapping for one failing sector. */
 	struct bt_bad {
 		unsigned short	bt_cyl;		/* cylinder number of bad sector */
 		unsigned short	bt_trksec;	/* track and sector number */

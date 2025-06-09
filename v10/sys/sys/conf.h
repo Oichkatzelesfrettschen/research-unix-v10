@@ -5,6 +5,7 @@
  *
  * the init macros are used just to check the number of arguments
  */
+/** Block device driver hooks. */
 struct bdevsw
 {
 	int	(*d_open)();

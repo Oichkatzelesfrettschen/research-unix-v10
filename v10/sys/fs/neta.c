@@ -692,4 +692,8 @@ bad:
 		return;
 	y->errno = EIO;
 }
-static struct D { struct D *a; char *b;} VER = {&VER,"\n85/6/9:neta.c\n"};
+/** Version marker. */
+static struct D {
+    struct D *a; /**< Self-reference. */
+    char *b;    /**< Version string. */
+} VER = {&VER, "\n85/6/9:neta.c\n"};

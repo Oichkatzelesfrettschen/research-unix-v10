@@ -2,6 +2,7 @@
  * vaxbi addressing
  */
 
+/** Addressing information for VAXBI nodes. */
 struct biaddr {
 	short nexus;		/* nexus number; software index */
 	short vec;		/* error interrupt vector */

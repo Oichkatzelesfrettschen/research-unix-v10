@@ -53,6 +53,7 @@ extern	struct	dkmodule dkmod[];
 extern	int dkmodcnt;
 
 #define	NDKRAW	32
+/** Descriptor for each raw channel. */
 struct	adk {
 	struct	queue *q;
 	struct	dkmodule *module;

@@ -10,6 +10,7 @@
 #define	PEND	16		/* we expect an interrupt */
 #define	ERRSNSE	32		/* do sense on error */
 
+/** SCSI command and response container. */
 struct bag
 {
 	struct { short msg_len; short pad; struct mscmd msg; } cmd;

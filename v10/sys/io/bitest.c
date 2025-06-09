@@ -65,6 +65,7 @@ struct fqb {
 /*
  * buffer descriptor
  */
+/** Buffer descriptor table entry. */
 struct bdt {
 	short b_flags;
 	short b_key;

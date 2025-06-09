@@ -2,9 +2,10 @@
  * DSA Mass Storage Control Protocol packet formats
  */
 
+/** Union used to store a 32-bit value as two 16-bit words. */
 typedef union {
-	long	SL_l;
-	short	SL_s[2];
+        long    SL_l;   /**< 32-bit view */
+        short   SL_s[2];/**< 16-bit halves */
 } _SL;
 
 /*
@@ -13,14 +14,18 @@ typedef union {
  * specific port drivers should cast it into whatever
  * their particular addressing structure requires
  */
-
+/**
+ * Generic buffer descriptor used by the MSCP driver.
+ * Allows access as longs, shorts, or a pointer with trailing
+ * quadword.
+ */
 typedef union {
-	long	BD_l[3];
-	short	BD_s[6];
-	struct {
-		long BD_pl;
-		long BD_q[2];	/* quadword at the end */
-	} BD_x;
+        long    BD_l[3];        /**< three longword view */
+        short   BD_s[6];        /**< six shortword view */
+        struct {
+                long BD_pl;     /**< pointer/length */
+                long BD_q[2];   /**< trailing quadword */
+        } BD_x;
 } BUFDESC;
 
 /*
